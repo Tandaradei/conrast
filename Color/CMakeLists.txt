@@ -1,2 +1,0 @@
-add_library(Color
-	Color.cpp Color.hpp)
