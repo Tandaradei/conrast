@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "Surface/ConsoleSurface.hpp"
-#include "Rasterizer/Rasterizer.hpp"
+#include "surface/ConsoleSurface.hpp"
+#include "rasterizer/Rasterizer.hpp"
 
 constexpr conrast::utils::Vec3f mkVert(const char* txt) {
     return {

@@ -4,8 +4,8 @@
 #include <stdint.h>
 #include <vector>
 
-#include "../Color/Color.hpp"
-#include "../Mesh/Vertex.hpp"
+#include "../color/Color.hpp"
+#include "../mesh/Vertex.hpp"
 
 namespace conrast { namespace surface {
 

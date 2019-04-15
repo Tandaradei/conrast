@@ -1,9 +1,9 @@
 #ifndef RASTERIZER_HPP
 #define RASTERIZER_HPP
 
-#include "../Surface/Surface.hpp"
-#include "../Mesh/Line.hpp"
-#include "../Mesh/Triangle.hpp"
+#include "../surface/Surface.hpp"
+#include "../mesh/Line.hpp"
+#include "../mesh/Triangle.hpp"
 
 namespace conrast { namespace rast {
 
