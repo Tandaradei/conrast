@@ -1,0 +1,20 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/laurin/Repos/conrast/Surface/ConsoleSurface.cpp
+ConsoleSurface.hpp
+/home/laurin/Repos/conrast/Surface/ConsoleSurface.hpp
+
+/home/laurin/Repos/conrast/Surface/ConsoleSurface.hpp
+Surface.hpp
+/home/laurin/Repos/conrast/Surface/Surface.hpp
+
+/home/laurin/Repos/conrast/Surface/Surface.hpp
+stdint.h
+-
+
