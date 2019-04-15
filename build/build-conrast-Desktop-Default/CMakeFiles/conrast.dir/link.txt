@@ -1,1 +1,0 @@
-/usr/bin/clang++-7    -rdynamic CMakeFiles/conrast.dir/main.cpp.o CMakeFiles/conrast.dir/Color/Color.cpp.o CMakeFiles/conrast.dir/Surface/Surface.cpp.o CMakeFiles/conrast.dir/Surface/ConsoleSurface.cpp.o  -o conrast 

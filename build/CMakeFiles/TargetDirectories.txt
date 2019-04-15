@@ -1,3 +1,0 @@
-/home/laurin/Repos/conrast/build/CMakeFiles/rebuild_cache.dir
-/home/laurin/Repos/conrast/build/CMakeFiles/conrast.dir
-/home/laurin/Repos/conrast/build/CMakeFiles/edit_cache.dir

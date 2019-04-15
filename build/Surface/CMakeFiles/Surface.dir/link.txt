@@ -1,2 +1,0 @@
-/usr/bin/ar qc libSurface.a  CMakeFiles/Surface.dir/Surface.cpp.o CMakeFiles/Surface.dir/ConsoleSurface.cpp.o
-/usr/bin/ranlib libSurface.a

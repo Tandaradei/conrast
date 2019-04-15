@@ -7,21 +7,21 @@ set(conrast_VERSION_MINOR 1)
 
 
 add_executable(${PROJECT_NAME}
-    main.cpp
-    Color/Color.hpp
-    Color/Color.cpp
-    Utils/Vec.hpp
-    Utils/Vec.cpp
-    Surface/Surface.hpp
-    Surface/Surface.cpp
-    Surface/ConsoleSurface.hpp
-    Surface/ConsoleSurface.cpp
-    Rasterizer/Rasterizer.hpp
-    Rasterizer/Rasterizer.cpp
-    Mesh/Vertex.hpp
-    Mesh/Vertex.cpp
-    Mesh/Line.hpp
-    Mesh/Line.cpp
-    Mesh/Triangle.hpp
-    Mesh/Triangle.cpp
+    src/main.cpp
+    src/color/Color.hpp
+    src/color/Color.cpp
+    src/utils/Vec.hpp
+    src/utils/Vec.cpp
+    src/surface/Surface.hpp
+    src/surface/Surface.cpp
+    src/surface/ConsoleSurface.hpp
+    src/surface/ConsoleSurface.cpp
+    src/rasterizer/Rasterizer.hpp
+    src/rasterizer/Rasterizer.cpp
+    src/mesh/Vertex.hpp
+    src/mesh/Vertex.cpp
+    src/mesh/Line.hpp
+    src/mesh/Line.cpp
+    src/mesh/Triangle.hpp
+    src/mesh/Triangle.cpp
 )

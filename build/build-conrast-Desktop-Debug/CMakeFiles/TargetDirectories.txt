@@ -1,3 +1,0 @@
-/home/laurin/Repos/conrast/build/build-conrast-Desktop-Debug/CMakeFiles/rebuild_cache.dir
-/home/laurin/Repos/conrast/build/build-conrast-Desktop-Debug/CMakeFiles/conrast.dir
-/home/laurin/Repos/conrast/build/build-conrast-Desktop-Debug/CMakeFiles/edit_cache.dir
