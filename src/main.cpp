@@ -3,7 +3,7 @@
 #include "surface/ConsoleSurface.hpp"
 #include "rasterizer/Rasterizer.hpp"
 
-constexpr conrast::utils::Vec3f mkVert(const char* txt) {
+constexpr conrast::utils::Vec3f mkVert(const char txt[3]) {
     return {
         txt[0] == 'L' ? -1.0f : 1.0f,
         txt[1] == 'B' ? -1.0f : 1.0f,
