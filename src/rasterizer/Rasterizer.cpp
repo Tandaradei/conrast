@@ -16,7 +16,7 @@ void Rasterizer::setOptions(Rasterizer::Options options) {
 }
 
 
-void Rasterizer::render(surface::Surface& surface, const std::vector<mesh::Vertex>& vertices) const {
+void Rasterizer::render(surface::RenderTarget& renderTarget, const std::vector<mesh::Vertex>& vertices) const {
     switch(m_options.vertexStruct) {
         case Options::VertexStruct::Points: {
             for(const auto& vertex : vertices) {
@@ -24,8 +24,8 @@ void Rasterizer::render(surface::Surface& surface, const std::vector<mesh::Verte
                     auto posScreen = transformToScreen(vertex.position);
                     if(posScreen.position.x >= -1.0f && posScreen.position.x <= 1.0f
                         && posScreen.position.y >= -1.0f && posScreen.position.y <= 1.0f) {
-                        auto rasterPos = surface.convertScreenToRaster(posScreen.position);
-                        surface.drawPixel(rasterPos, posScreen.depth, vertex.color);
+                        auto rasterPos = renderTarget.convertScreenToRaster(posScreen.position);
+                        renderTarget.drawPixel(rasterPos, posScreen.depth, vertex.color);
                     }
                 }
             }
@@ -36,7 +36,7 @@ void Rasterizer::render(surface::Surface& surface, const std::vector<mesh::Verte
                 return;
             }
             for(auto it = vertices.begin(); it != vertices.cend(); ) {
-                drawLine(surface, { *it++, *it++ });
+                drawLine(renderTarget, { *it++, *it++ });
             }
             break;
         }
@@ -45,7 +45,7 @@ void Rasterizer::render(surface::Surface& surface, const std::vector<mesh::Verte
                 return;
             }
             for(auto it = vertices.begin() + 1; it != vertices.cend(); it++) {
-                drawLine(surface, { *(it-1), *it });
+                drawLine(renderTarget, { *(it-1), *it });
             }
             break;
         }
@@ -54,7 +54,7 @@ void Rasterizer::render(surface::Surface& surface, const std::vector<mesh::Verte
                 return;
             }
             for(auto it = vertices.begin(); it != vertices.cend(); ) {
-                drawTriangle(surface, { *it++, *it++, *it++ });
+                drawTriangle(renderTarget, { *it++, *it++, *it++ });
             }
             break;
         }
@@ -64,7 +64,7 @@ void Rasterizer::render(surface::Surface& surface, const std::vector<mesh::Verte
             }
             mesh::Triangle triangle = { vertices[0], vertices[1], vertices[2] };
             for(auto it = vertices.begin() + 3; it != vertices.cend(); ) {
-                drawTriangle(surface, triangle);
+                drawTriangle(renderTarget, triangle);
                 triangle.vertices[0] = triangle.vertices[1];
                 triangle.vertices[1] = triangle.vertices[2];
                 triangle.vertices[2] = *it++;
@@ -91,11 +91,11 @@ color::Color Rasterizer::getInterpolatedColor(utils::Vec3f screenPos, const std:
     return triangle[0].color;
 }
 
-void Rasterizer::drawLine(surface::Surface& surface, const mesh::Line& line) const {
+void Rasterizer::drawLine(surface::RenderTarget& renderTarget, const mesh::Line& line) const {
     auto startScreen = transformToScreen(line.start.position);
     auto endScreen = transformToScreen(line.end.position);
-    auto startRaster = surface.convertScreenToRaster(startScreen.position);
-    auto endRaster = surface.convertScreenToRaster(endScreen.position);
+    auto startRaster = renderTarget.convertScreenToRaster(startScreen.position);
+    auto endRaster = renderTarget.convertScreenToRaster(endScreen.position);
     auto startToEnd = endRaster - startRaster;
     float length = startToEnd.length();
     utils::Vec2f dir = utils::Vec2f{ static_cast<float>(startToEnd.x), static_cast<float>(startToEnd.y) } / length;
@@ -103,15 +103,15 @@ void Rasterizer::drawLine(surface::Surface& surface, const mesh::Line& line) con
     for(float i = 0.0f; i <= length; i += 1.0f) {
         auto rastPos = utils::Vec2i{ static_cast<int>(startRasterFloat.x + i * dir.x), static_cast<int>(startRasterFloat.y + i * dir.y)};
         // TODO depth and color not correct! Must be interpolated
-        surface.drawPixel(rastPos, startScreen.depth, line.start.color);
+        renderTarget.drawPixel(rastPos, startScreen.depth, line.start.color);
     }
 }
 
 
-void Rasterizer::drawTriangle(surface::Surface &surface, const mesh::Triangle& triangle) const {
-    drawLine(surface, { triangle.vertices[0], triangle.vertices[1] });
-    drawLine(surface, { triangle.vertices[1], triangle.vertices[2] });
-    drawLine(surface, { triangle.vertices[2], triangle.vertices[0] });
+void Rasterizer::drawTriangle(surface::RenderTarget &renderTarget, const mesh::Triangle& triangle) const {
+    drawLine(renderTarget, { triangle.vertices[0], triangle.vertices[1] });
+    drawLine(renderTarget, { triangle.vertices[1], triangle.vertices[2] });
+    drawLine(renderTarget, { triangle.vertices[2], triangle.vertices[0] });
 }
 
 

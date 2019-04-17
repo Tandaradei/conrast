@@ -1,6 +1,6 @@
 # TODO
 
-* Add RenderTarget as base for Surface
+* ~~Add RenderTarget as base for Surface~~
 * Cache rasterized vertices
 * Improve line drawing algorithm
 * Add FillMode for triangle drawing

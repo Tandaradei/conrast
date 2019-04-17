@@ -12,6 +12,8 @@ add_executable(${PROJECT_NAME}
     src/color/Color.cpp
     src/utils/Vec.hpp
     src/utils/Vec.cpp
+    src/surface/RenderTarget.hpp
+    src/surface/RenderTarget.cpp
     src/surface/Surface.hpp
     src/surface/Surface.cpp
     src/surface/ConsoleSurface.hpp

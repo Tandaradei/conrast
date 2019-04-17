@@ -1,7 +1,7 @@
 #ifndef RASTERIZER_HPP
 #define RASTERIZER_HPP
 
-#include "../surface/Surface.hpp"
+#include "../surface/RenderTarget.hpp"
 #include "../mesh/Line.hpp"
 #include "../mesh/Triangle.hpp"
 
@@ -43,15 +43,15 @@ public:
     Rasterizer(Options m_options);
     void setOptions(Options m_options);
 
-    void render(surface::Surface& surface, const std::vector<mesh::Vertex>& vertices) const;
+    void render(surface::RenderTarget& renderTarget, const std::vector<mesh::Vertex>& vertices) const;
 
 private:
     ScreenPixel transformToScreen(utils::Vec3f position) const;
     utils::Vec3f transformToWorld(utils::Vec3f screenPos) const;
     color::Color getInterpolatedColor(utils::Vec3f screenPos, const std::vector<mesh::Vertex> triangle) const;
 
-    void drawLine(surface::Surface& surface, const mesh::Line& line) const;
-    void drawTriangle(surface::Surface& surface, const mesh::Triangle& triangle) const;
+    void drawLine(surface::RenderTarget& renderTarget, const mesh::Line& line) const;
+    void drawTriangle(surface::RenderTarget& renderTarget, const mesh::Triangle& triangle) const;
 
 private:
     Options m_options;
