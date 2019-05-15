@@ -1,7 +1,7 @@
 #ifndef CONSOLESURFACE_HPP
 #define CONSOLESURFACE_HPP
 
-#include "Surface.hpp"
+#include "surface/Surface.hpp"
 
 
 namespace conrast { namespace surface {

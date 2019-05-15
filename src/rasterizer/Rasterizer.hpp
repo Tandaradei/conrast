@@ -1,9 +1,10 @@
 #ifndef RASTERIZER_HPP
 #define RASTERIZER_HPP
 
-#include "../surface/RenderTarget.hpp"
-#include "../mesh/Line.hpp"
-#include "../mesh/Triangle.hpp"
+#include "surface/RenderTarget.hpp"
+#include "mesh/Line.hpp"
+#include "mesh/Triangle.hpp"
+#include "mesh/Mesh.hpp"
 
 namespace conrast { namespace rast {
 
@@ -43,7 +44,7 @@ public:
     Rasterizer(Options m_options);
     void setOptions(Options m_options);
 
-    void render(surface::RenderTarget& renderTarget, const std::vector<mesh::Vertex>& vertices) const;
+    void render(surface::RenderTarget& renderTarget, const mesh::Mesh& mesh) const;
 
 private:
     ScreenPixel transformToScreen(utils::Vec3f position) const;
@@ -51,7 +52,8 @@ private:
     color::Color getInterpolatedColor(utils::Vec3f screenPos, const std::vector<mesh::Vertex> triangle) const;
 
     void drawLine(surface::RenderTarget& renderTarget, const mesh::Line& line) const;
-    void drawTriangle(surface::RenderTarget& renderTarget, const mesh::Triangle& triangle) const;
+    void drawTriangleFilled(surface::RenderTarget& renderTarget, const mesh::Triangle& triangle) const;
+    void drawTriangleLines(surface::RenderTarget& renderTarget, const mesh::Triangle& triangle) const;
 
 private:
     Options m_options;

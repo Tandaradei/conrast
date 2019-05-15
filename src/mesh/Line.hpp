@@ -1,7 +1,7 @@
 #ifndef LINE_HPP
 #define LINE_HPP
 
-#include "Vertex.hpp"
+#include "mesh/Vertex.hpp"
 
 namespace conrast { namespace mesh {
 

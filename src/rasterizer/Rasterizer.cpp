@@ -1,5 +1,7 @@
 #include "Rasterizer.hpp"
 
+#include <algorithm>
+
 namespace conrast { namespace  rast {
 
 Rasterizer::Rasterizer()
@@ -16,10 +18,11 @@ void Rasterizer::setOptions(Rasterizer::Options options) {
 }
 
 
-void Rasterizer::render(surface::RenderTarget& renderTarget, const std::vector<mesh::Vertex>& vertices) const {
+void Rasterizer::render(surface::RenderTarget& renderTarget, const mesh::Mesh& mesh) const {
     switch(m_options.vertexStruct) {
         case Options::VertexStruct::Points: {
-            for(const auto& vertex : vertices) {
+            for(const auto& index : mesh.indexes) {
+                const auto& vertex = mesh.vertices[index];
                 if(vertex.position.z >= 1.0f) {
                     auto posScreen = transformToScreen(vertex.position);
                     if(posScreen.position.x >= -1.0f && posScreen.position.x <= 1.0f
@@ -32,42 +35,63 @@ void Rasterizer::render(surface::RenderTarget& renderTarget, const std::vector<m
             break;
         }
         case Options::VertexStruct::Lines: {
-            if(vertices.size() < 2 || vertices.size() % 2 != 0) {
+            if(mesh.indexes.size() < 2 || mesh.indexes.size() % 2 != 0) {
                 return;
             }
-            for(auto it = vertices.begin(); it != vertices.cend(); ) {
-                drawLine(renderTarget, { *it++, *it++ });
+            for(auto it = mesh.indexes.begin(); it != mesh.indexes.cend(); ) {
+                drawLine(renderTarget, { mesh.vertices[*it++], mesh.vertices[*it++] });
             }
             break;
         }
         case Options::VertexStruct::LineStrip: {
-            if(vertices.size() < 2) {
+            if(mesh.indexes.size() < 2) {
                 return;
             }
-            for(auto it = vertices.begin() + 1; it != vertices.cend(); it++) {
-                drawLine(renderTarget, { *(it-1), *it });
+            for(auto it = mesh.indexes.begin() + 1; it != mesh.indexes.cend(); it++) {
+                drawLine(renderTarget, { mesh.vertices[*(it-1)], mesh.vertices[*it] });
             }
             break;
         }
         case Options::VertexStruct::Triangles: {
-            if(vertices.size() < 3 || vertices.size() % 3 != 0) {
+            if(mesh.indexes.size() < 3 || mesh.indexes.size() % 3 != 0) {
                 return;
             }
-            for(auto it = vertices.begin(); it != vertices.cend(); ) {
-                drawTriangle(renderTarget, { *it++, *it++, *it++ });
+            if(m_options.fillType == Options::FillType::Fill) {
+                for(auto it = mesh.indexes.begin(); it != mesh.indexes.cend(); ) {
+                    drawTriangleFilled(renderTarget, { mesh.vertices[*it++], mesh.vertices[*it++], mesh.vertices[*it++] });
+                }
+            }
+            else if(m_options.fillType == Options::FillType::Line) {
+                for(auto it = mesh.indexes.begin(); it != mesh.indexes.cend(); ) {
+                    drawTriangleLines(renderTarget, { mesh.vertices[*it++], mesh.vertices[*it++], mesh.vertices[*it++] });
+                }
             }
             break;
         }
         case Options::VertexStruct::TriangleStrip: {
-            if(vertices.size() < 3) {
+            if(mesh.indexes.size() < 3) {
                 return;
             }
-            mesh::Triangle triangle = { vertices[0], vertices[1], vertices[2] };
-            for(auto it = vertices.begin() + 3; it != vertices.cend(); ) {
-                drawTriangle(renderTarget, triangle);
-                triangle.vertices[0] = triangle.vertices[1];
-                triangle.vertices[1] = triangle.vertices[2];
-                triangle.vertices[2] = *it++;
+            mesh::Triangle triangle = {
+                mesh.vertices[mesh.indexes[0]],
+                mesh.vertices[mesh.indexes[1]],
+                mesh.vertices[mesh.indexes[2]]
+            };
+            if(m_options.fillType == Options::FillType::Fill) {
+                for(auto it = mesh.indexes.begin() + 3; it != mesh.indexes.cend(); it++) {
+                    drawTriangleFilled(renderTarget, triangle);
+                    triangle.vertices[0] = triangle.vertices[1];
+                    triangle.vertices[1] = triangle.vertices[2];
+                    triangle.vertices[2] = mesh.vertices[*it];
+                }
+            }
+            else if(m_options.fillType == Options::FillType::Line) {
+                for(auto it = mesh.indexes.begin() + 3; it != mesh.indexes.cend(); it++) {
+                    drawTriangleLines(renderTarget, triangle);
+                    triangle.vertices[0] = triangle.vertices[1];
+                    triangle.vertices[1] = triangle.vertices[2];
+                    triangle.vertices[2] = mesh.vertices[*it];
+                }
             }
             break;
         }
@@ -108,7 +132,60 @@ void Rasterizer::drawLine(surface::RenderTarget& renderTarget, const mesh::Line&
 }
 
 
-void Rasterizer::drawTriangle(surface::RenderTarget &renderTarget, const mesh::Triangle& triangle) const {
+void Rasterizer::drawTriangleFilled(surface::RenderTarget &renderTarget, const mesh::Triangle& triangle) const {
+    const std::vector<ScreenPixel> screenTriangle = {
+            transformToScreen(triangle.vertices[0].position),
+            transformToScreen(triangle.vertices[1].position),
+            transformToScreen(triangle.vertices[2].position)
+    };
+
+    std::vector<utils::Vec2i> rasterTriangleSorted = {
+        renderTarget.convertScreenToRaster(screenTriangle[0].position),
+        renderTarget.convertScreenToRaster(screenTriangle[1].position),
+        renderTarget.convertScreenToRaster(screenTriangle[2].position)
+    };
+    std::sort(begin(rasterTriangleSorted),
+              end(rasterTriangleSorted),
+              [](const auto& a, const auto& b) {
+                return a.y < b.y;
+              }
+    );
+
+    auto interpolateX = [](auto start, auto end, int value) {
+        return start.x + static_cast<int>(
+                    std::roundf(
+                        static_cast<float>(end.x - start.x) *
+                        (static_cast<float>(value) / static_cast<float>(end.y - start.y))
+                    )
+                );
+    };
+
+    for(int y = rasterTriangleSorted[0].y; y < rasterTriangleSorted[1].y; y++) {
+        int xStart = interpolateX(rasterTriangleSorted[0], rasterTriangleSorted[2], y);
+        int xEnd = interpolateX(rasterTriangleSorted[0], rasterTriangleSorted[1], y);
+        if(xStart > xEnd) {
+            std::swap(xStart, xEnd);
+        }
+        for(int x = xStart; x <= xEnd; x++) {
+            // TODO depth and color not correct! Must be interpolated
+            renderTarget.drawPixel({x, y}, screenTriangle[0].depth, triangle.vertices[0].color);
+        }
+    }
+    for(int y = rasterTriangleSorted[1].y; y < rasterTriangleSorted[2].y; y++) {
+        int xStart = interpolateX(rasterTriangleSorted[0], rasterTriangleSorted[2], y);
+        int xEnd = interpolateX(rasterTriangleSorted[1], rasterTriangleSorted[2], y);
+        if(xStart > xEnd) {
+            std::swap(xStart, xEnd);
+        }
+        for(int x = xStart; x <= xEnd; x++) {
+            // TODO depth and color not correct! Must be interpolated
+            renderTarget.drawPixel({x, y}, screenTriangle[0].depth, triangle.vertices[0].color);
+        }
+    }
+}
+
+
+void Rasterizer::drawTriangleLines(surface::RenderTarget &renderTarget, const mesh::Triangle& triangle) const {
     drawLine(renderTarget, { triangle.vertices[0], triangle.vertices[1] });
     drawLine(renderTarget, { triangle.vertices[1], triangle.vertices[2] });
     drawLine(renderTarget, { triangle.vertices[2], triangle.vertices[0] });

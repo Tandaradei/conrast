@@ -3,8 +3,8 @@
 
 #include <vector>
 
-#include "../utils/Vec.hpp"
-#include "../color/Color.hpp"
+#include "utils/Vec.hpp"
+#include "color/Color.hpp"
 
 namespace conrast { namespace surface {
 

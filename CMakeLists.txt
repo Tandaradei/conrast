@@ -5,6 +5,8 @@ project(conrast)
 set(conrast_VERSION_MAJOR 0)
 set(conrast_VERSION_MINOR 1)
 
+SET(BASEPATH "${CMAKE_SOURCE_DIR}/src")
+INCLUDE_DIRECTORIES("${BASEPATH}")
 
 add_executable(${PROJECT_NAME}
     src/main.cpp
@@ -26,4 +28,6 @@ add_executable(${PROJECT_NAME}
     src/mesh/Line.cpp
     src/mesh/Triangle.hpp
     src/mesh/Triangle.cpp
+    src/mesh/Mesh.hpp
+    src/mesh/Mesh.cpp
 )

@@ -3,7 +3,7 @@
 
 #include <array>
 
-#include "Vertex.hpp"
+#include "mesh/Vertex.hpp"
 
 namespace conrast { namespace mesh {
 

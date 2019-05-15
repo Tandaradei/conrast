@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <vector>
 
-#include "RenderTarget.hpp"
+#include "surface/RenderTarget.hpp"
 
 namespace conrast { namespace surface {
 
