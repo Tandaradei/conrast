@@ -13,7 +13,7 @@ constexpr conrast::utils::Vec3f mkVert(const char txt[3]) {
 
 int main() {
     using namespace conrast;
-    surface::ConsoleSurface surface(40, 20);
+    surface::ConsoleSurface surface(100, 50);
     color::Color white(255, 255, 255, 255);
     color::Color grey(100, 100, 100, 255);
     rast::Rasterizer rasterizer({

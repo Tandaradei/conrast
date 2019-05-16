@@ -155,11 +155,11 @@ void Rasterizer::drawTriangleFilled(surface::RenderTarget &renderTarget, const m
         return start.x + static_cast<int>(
                     std::roundf(
                         static_cast<float>(end.x - start.x) *
-                        (static_cast<float>(value) / static_cast<float>(end.y - start.y))
+                        (static_cast<float>(value - start.y) / static_cast<float>(end.y - start.y))
                     )
                 );
     };
-
+    // Upper part
     for(int y = rasterTriangleSorted[0].y; y < rasterTriangleSorted[1].y; y++) {
         int xStart = interpolateX(rasterTriangleSorted[0], rasterTriangleSorted[2], y);
         int xEnd = interpolateX(rasterTriangleSorted[0], rasterTriangleSorted[1], y);
@@ -171,6 +171,7 @@ void Rasterizer::drawTriangleFilled(surface::RenderTarget &renderTarget, const m
             renderTarget.drawPixel({x, y}, screenTriangle[0].depth, triangle.vertices[0].color);
         }
     }
+    // Lower part
     for(int y = rasterTriangleSorted[1].y; y < rasterTriangleSorted[2].y; y++) {
         int xStart = interpolateX(rasterTriangleSorted[0], rasterTriangleSorted[2], y);
         int xEnd = interpolateX(rasterTriangleSorted[1], rasterTriangleSorted[2], y);
