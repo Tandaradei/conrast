@@ -81,6 +81,88 @@ struct Vec3 {
     T x;
     T y;
     T z;
+
+    Vec3 operator+(Vec3<T> const& other) const {
+        return Vec3<T>{ x + other.x, y + other.y, z + other.z };
+    }
+
+    Vec3& operator+=(Vec3<T> const& other) {
+        x += other.x;
+        y += other.y;
+        z += other.z;
+        return *this;
+    }
+
+    Vec3 operator-(Vec3<T> const& other) const {
+        return Vec3<T>{ x - other.x, y - other.y, z - other.z };
+    }
+
+    Vec3& operator-=(Vec3<T> const& other) {
+        x -= other.x;
+        y -= other.y;
+        z -= other.z;
+        return *this;
+    }
+
+    Vec3 operator*(const float factor) const {
+        return Vec3<T>{ x * factor, y * factor, z * factor };
+    }
+
+    Vec3& operator*=(const float factor) {
+        x *= factor;
+        y *= factor;
+        z *= factor;
+        return *this;
+    }
+
+    Vec3 operator/(const float factor) const {
+        return Vec3<T>{ x / factor, y / factor, z / factor };
+    }
+
+    Vec3& operator/=(const float factor) {
+        x /= factor;
+        y /= factor;
+        z /= factor;
+        return *this;
+    }
+
+    float dot(Vec3<T> const& other) const {
+        return static_cast<float>(x * other.x + y * other.y + z * other.z);
+    }
+
+    Vec3<T> cross(Vec3<T> const& other) const {
+        return {
+            y * other.z - z * other.y,
+            z * other.x - x * other.z,
+            x * other.y - y * other.x,
+        };
+    }
+
+    float squaredLength() const {
+        return this->dot(*this);
+    }
+
+    float length() const {
+        return std::sqrt(squaredLength());
+    }
+
+    Vec3& normalize() {
+        const float length = this->length();
+        x /= length;
+        y /= length;
+        z /= length;
+        return *this;
+    }
+
+    Vec3 normalized() const {
+        const float length = this->length();
+        return { x / length, y / length, z / length };
+    }
+
+    operator Vec2<T>() const {
+        return { x, y };
+    }
+
 };
 
 using Vec3f = Vec3<float>;

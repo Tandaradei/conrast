@@ -4,18 +4,18 @@ namespace conrast { namespace color {
 
 
 Color::Color()
-    : Color(0, 0, 0, 0)
+    : Color( 0.0f, 0.0f, 0.0f, 1.0f )
 {}
 
 
-Color::Color(uint8_t r, uint8_t g, uint8_t b, uint8_t a)
+Color::Color(float r, float g, float b, float a)
     : r(r),
       g(g),
       b(b),
       a(a)
 {}
 
-uint8_t Color::operator[](size_t index) {
+float Color::operator[](size_t index) {
     index = index % 4;
     switch (index) {
         case 0: return r;
@@ -26,6 +26,24 @@ uint8_t Color::operator[](size_t index) {
     return 0;
 }
 
-Color Color::Black = Color(0, 0, 0, 255);
+Color Color::operator*(float factor) const {
+    return {
+        r * factor,
+        g * factor,
+        b * factor,
+        a * factor
+    };
+}
+
+Color Color::operator+(const Color& other) const {
+    return {
+        r + other.r,
+        g + other.g,
+        b + other.b,
+        a + other.a
+    };
+}
+
+Color Color::Black = Color{ 0.0f, 0.0f, 0.0f, 1.0f };
 
 }}

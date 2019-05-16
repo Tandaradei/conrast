@@ -25,7 +25,7 @@ void ConsoleSurface::display() const {
         }
         std::cout << mapPixel(pixel.color);
         if(++x >= m_SIZE.x) {
-            std::cout << "|" << '\n';
+            std::cout << "|\n";
             x = 0;
         }
     }
@@ -35,7 +35,7 @@ void ConsoleSurface::display() const {
 
 char ConsoleSurface::mapPixel(color::Color color) const {
     // Map color to shade value of range [0, 1]
-    float shade = (color.r + color.g + color.b) / (256.0f * 3.0f);
+    float shade = (color.r + color.g + color.b) / 3.0f;
 
     if (shade < 0.05f) {
         return ' ';

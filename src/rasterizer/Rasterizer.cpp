@@ -25,10 +25,10 @@ void Rasterizer::render(surface::RenderTarget& renderTarget, const mesh::Mesh& m
                 const auto& vertex = mesh.vertices[index];
                 if(vertex.position.z >= 1.0f) {
                     auto posScreen = transformToScreen(vertex.position);
-                    if(posScreen.position.x >= -1.0f && posScreen.position.x <= 1.0f
-                        && posScreen.position.y >= -1.0f && posScreen.position.y <= 1.0f) {
-                        auto rasterPos = renderTarget.convertScreenToRaster(posScreen.position);
-                        renderTarget.drawPixel(rasterPos, posScreen.depth, vertex.color);
+                    if(posScreen.x >= -1.0f && posScreen.x <= 1.0f
+                        && posScreen.y >= -1.0f && posScreen.y <= 1.0f) {
+                        auto rasterPos = renderTarget.convertScreenToRaster({ posScreen.x, posScreen.y });
+                        renderTarget.drawPixel(rasterPos, posScreen.z - 1.0f, vertex.color);
                     }
                 }
             }
@@ -100,50 +100,81 @@ void Rasterizer::render(surface::RenderTarget& renderTarget, const mesh::Mesh& m
 }
 
 
-Rasterizer::ScreenPixel Rasterizer::transformToScreen(utils::Vec3f position) const {
-    return { { position.x / position.z, -position.y / position.z }, position.z - 1.0f };
+utils::Vec3f Rasterizer::transformToScreen(utils::Vec3f position) const {
+    return { position.x / position.z, -position.y / position.z , position.z };
 }
 
 
 utils::Vec3f Rasterizer::transformToWorld(utils::Vec3f screenPos) const {
-    return { screenPos.x * screenPos.z, -screenPos.x * screenPos.z, screenPos.z + 1.0f};
+    return { screenPos.x * screenPos.z, -screenPos.y * screenPos.z, screenPos.z };
 }
 
 
-color::Color Rasterizer::getInterpolatedColor(utils::Vec3f screenPos, const std::vector<mesh::Vertex> triangle) const {
-    // TODO implement
-    return triangle[0].color;
+float Rasterizer::get2DTriangleArea(utils::Vec2f a, utils::Vec2f b, utils::Vec2f c) const {
+    return std::abs(
+                a.x * (b.y - c.y) +
+                b.x * (c.y - a.y) +
+                c.x * (a.y - b.y)
+           ) * 0.5f;
 }
+
+
+utils::Vec3f Rasterizer::get2DBarycentric(utils::Vec2f a, utils::Vec2f b, utils::Vec2f c, utils::Vec2f p) const {
+    const float area = get2DTriangleArea(a, b, c);
+    return {
+        get2DTriangleArea(b, c, p) / area,
+        get2DTriangleArea(c, a, p) / area,
+        get2DTriangleArea(a, b, p) / area
+    };
+}
+
+
+float Rasterizer::get3DTriangleArea(utils::Vec3f a, utils::Vec3f b, utils::Vec3f c) const {
+    const auto ab = b - a;
+    const auto ac = c - a;
+    return ab.cross(ac).length() * 0.5f;
+}
+
+
+utils::Vec3f Rasterizer::get3DBarycentric(utils::Vec3f a, utils::Vec3f b, utils::Vec3f c, utils::Vec3f p) const {
+    const float area = get3DTriangleArea(a, b, c);
+    return {
+        get3DTriangleArea(b, c, p) / area,
+        get3DTriangleArea(c, a, p) / area,
+        get3DTriangleArea(a, b, p) / area
+    };
+}
+
 
 void Rasterizer::drawLine(surface::RenderTarget& renderTarget, const mesh::Line& line) const {
     auto startScreen = transformToScreen(line.start.position);
     auto endScreen = transformToScreen(line.end.position);
-    auto startRaster = renderTarget.convertScreenToRaster(startScreen.position);
-    auto endRaster = renderTarget.convertScreenToRaster(endScreen.position);
+    auto startRaster = renderTarget.convertScreenToRaster({ startScreen.x, startScreen.y });
+    auto endRaster = renderTarget.convertScreenToRaster({ endScreen.x, endScreen.y });
     auto startToEnd = endRaster - startRaster;
     float length = startToEnd.length();
     utils::Vec2f dir = utils::Vec2f{ static_cast<float>(startToEnd.x), static_cast<float>(startToEnd.y) } / length;
     auto startRasterFloat = utils::Vec2f{ static_cast<float>(startRaster.x), static_cast<float>(startRaster.y) };
     for(float i = 0.0f; i <= length; i += 1.0f) {
         auto rastPos = utils::Vec2i{ static_cast<int>(startRasterFloat.x + i * dir.x), static_cast<int>(startRasterFloat.y + i * dir.y)};
+        float depth = 0.0f;
         // TODO depth and color not correct! Must be interpolated
-        renderTarget.drawPixel(rastPos, startScreen.depth, line.start.color);
+        renderTarget.drawPixel(rastPos, depth, line.start.color);
     }
 }
 
 
 void Rasterizer::drawTriangleFilled(surface::RenderTarget &renderTarget, const mesh::Triangle& triangle) const {
-    const std::vector<ScreenPixel> screenTriangle = {
-            transformToScreen(triangle.vertices[0].position),
-            transformToScreen(triangle.vertices[1].position),
-            transformToScreen(triangle.vertices[2].position)
-    };
+    const auto as = transformToScreen(triangle.vertices[0].position);
+    const auto bs = transformToScreen(triangle.vertices[1].position);
+    const auto cs = transformToScreen(triangle.vertices[2].position);
 
     std::vector<utils::Vec2i> rasterTriangleSorted = {
-        renderTarget.convertScreenToRaster(screenTriangle[0].position),
-        renderTarget.convertScreenToRaster(screenTriangle[1].position),
-        renderTarget.convertScreenToRaster(screenTriangle[2].position)
+        renderTarget.convertScreenToRaster(as),
+        renderTarget.convertScreenToRaster(bs),
+        renderTarget.convertScreenToRaster(cs)
     };
+
     std::sort(begin(rasterTriangleSorted),
               end(rasterTriangleSorted),
               [](const auto& a, const auto& b) {
@@ -159,6 +190,26 @@ void Rasterizer::drawTriangleFilled(surface::RenderTarget &renderTarget, const m
                     )
                 );
     };
+
+    auto drawPixel = [&](const utils::Vec3f& a, const utils::Vec3f& b, const utils::Vec3f& c, utils::Vec2i rasterPoint) {
+        auto screenPoint2D = renderTarget.convertRasterToScreen({ rasterPoint.x, rasterPoint.y });
+        utils::Vec3f ws = get2DBarycentric(a, b, c, screenPoint2D);
+        //if(ws.x < 0.0f || ws.y < 0.0f || ws.z < 0.0f || ws.x + ws.y + ws.z > 1.0f) { return; }
+        float z = 1.0f /
+               ((1.0f / a.z) * ws.x +
+               (1.0f / b.z) * ws.y +
+               (1.0f / c.z) * ws.z);
+        utils::Vec3f p = transformToWorld({ screenPoint2D.x, screenPoint2D.y, z });
+        utils::Vec3f ww = get3DBarycentric(
+                triangle.vertices[0].position,
+                triangle.vertices[1].position,
+                triangle.vertices[2].position,
+                p);
+        auto color = triangle.vertices[0].color * ww.x +
+                     triangle.vertices[1].color * ww.y +
+                     triangle.vertices[2].color * ww.z;
+        renderTarget.drawPixel(rasterPoint, z - 1.0f, color);
+    };
     // Upper part
     for(int y = rasterTriangleSorted[0].y; y < rasterTriangleSorted[1].y; y++) {
         int xStart = interpolateX(rasterTriangleSorted[0], rasterTriangleSorted[2], y);
@@ -166,9 +217,8 @@ void Rasterizer::drawTriangleFilled(surface::RenderTarget &renderTarget, const m
         if(xStart > xEnd) {
             std::swap(xStart, xEnd);
         }
-        for(int x = xStart; x <= xEnd; x++) {
-            // TODO depth and color not correct! Must be interpolated
-            renderTarget.drawPixel({x, y}, screenTriangle[0].depth, triangle.vertices[0].color);
+        for(int x = xStart; x < xEnd; x++) {
+            drawPixel(as, bs, cs, { x, y });
         }
     }
     // Lower part
@@ -178,9 +228,8 @@ void Rasterizer::drawTriangleFilled(surface::RenderTarget &renderTarget, const m
         if(xStart > xEnd) {
             std::swap(xStart, xEnd);
         }
-        for(int x = xStart; x <= xEnd; x++) {
-            // TODO depth and color not correct! Must be interpolated
-            renderTarget.drawPixel({x, y}, screenTriangle[0].depth, triangle.vertices[0].color);
+        for(int x = xStart; x < xEnd; x++) {
+            drawPixel(as, bs, cs, { x, y });
         }
     }
 }

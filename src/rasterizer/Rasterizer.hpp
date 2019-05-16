@@ -34,11 +34,6 @@ public:
         float imagePlaneVerticalSize = 0.9f;
     };
 
-    struct ScreenPixel {
-        utils::Vec2f position;
-        float depth;
-    };
-
 public:
     Rasterizer();
     Rasterizer(Options m_options);
@@ -47,9 +42,12 @@ public:
     void render(surface::RenderTarget& renderTarget, const mesh::Mesh& mesh) const;
 
 private:
-    ScreenPixel transformToScreen(utils::Vec3f position) const;
+    utils::Vec3f transformToScreen(utils::Vec3f position) const;
     utils::Vec3f transformToWorld(utils::Vec3f screenPos) const;
-    color::Color getInterpolatedColor(utils::Vec3f screenPos, const std::vector<mesh::Vertex> triangle) const;
+    float get2DTriangleArea(utils::Vec2f a, utils::Vec2f b, utils::Vec2f c) const;
+    utils::Vec3f get2DBarycentric(utils::Vec2f a, utils::Vec2f b, utils::Vec2f c, utils::Vec2f p) const;
+    float get3DTriangleArea(utils::Vec3f a, utils::Vec3f b, utils::Vec3f c) const;
+    utils::Vec3f get3DBarycentric(utils::Vec3f a, utils::Vec3f b, utils::Vec3f c, utils::Vec3f p) const;
 
     void drawLine(surface::RenderTarget& renderTarget, const mesh::Line& line) const;
     void drawTriangleFilled(surface::RenderTarget& renderTarget, const mesh::Triangle& triangle) const;

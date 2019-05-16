@@ -14,7 +14,8 @@ public:
     RenderTarget(int width, int height);
 
     void drawPixel(utils::Vec2i rasterPos, float depth, color::Color color);
-    utils::Vec2i convertScreenToRaster(utils::Vec2f screen_pos) const;
+    utils::Vec2i convertScreenToRaster(utils::Vec2f screenPos) const;
+    utils::Vec2f convertRasterToScreen(utils::Vec2i rasterPos) const;
 
     void clear(color::Color color);
 

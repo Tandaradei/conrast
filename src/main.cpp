@@ -14,8 +14,8 @@ constexpr conrast::utils::Vec3f mkVert(const char txt[3]) {
 int main() {
     using namespace conrast;
     surface::ConsoleSurface surface(100, 50);
-    color::Color white(255, 255, 255, 255);
-    color::Color grey(100, 100, 100, 255);
+    color::Color white { 1.0f, 1.0f, 1.0f, 1.0f };
+    color::Color grey { 0.2f, 0.2f, 0.2f, 1.0f };
     rast::Rasterizer rasterizer({
         rast::Rasterizer::Options::FillType::Fill,
         rast::Rasterizer::Options::VertexStruct::TriangleStrip

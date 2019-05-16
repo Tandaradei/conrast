@@ -22,10 +22,18 @@ void RenderTarget::drawPixel(utils::Vec2i rasterPos, float depth, color::Color c
 }
 
 
-utils::Vec2i RenderTarget::convertScreenToRaster(utils::Vec2f screen_pos) const {
+utils::Vec2i RenderTarget::convertScreenToRaster(utils::Vec2f screenPos) const {
     return {
-        static_cast<int>((m_SIZE.x / 2) + screen_pos.x * (m_SIZE.x / 2)),
-        static_cast<int>((m_SIZE.y / 2) + screen_pos.y * (m_SIZE.y / 2))
+        static_cast<int>((m_SIZE.x / 2) + screenPos.x * (m_SIZE.x / 2)),
+        static_cast<int>((m_SIZE.y / 2) + screenPos.y * (m_SIZE.y / 2))
+    };
+}
+
+utils::Vec2f RenderTarget::convertRasterToScreen(utils::Vec2i rasterPos) const {
+    utils::Vec2f halfSize{ static_cast<float>(m_SIZE.x) * 0.5f, static_cast<float>(m_SIZE.y) * 0.5f };
+    return {
+        (static_cast<float>(rasterPos.x) - halfSize.x) / halfSize.x,
+        (static_cast<float>(rasterPos.y) - halfSize.y) / halfSize.y
     };
 }
 
