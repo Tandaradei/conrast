@@ -2,6 +2,8 @@
 
 #include "surface/ConsoleSurface.hpp"
 #include "rasterizer/Rasterizer.hpp"
+#include "render/Renderer.hpp"
+#include "utils/Vec.hpp"
 
 constexpr conrast::utils::Vec3f mkVert(const char txt[3]) {
     return {
@@ -16,10 +18,14 @@ int main() {
     surface::ConsoleSurface surface(100, 50);
     color::Color white { 1.0f, 1.0f, 1.0f, 1.0f };
     color::Color grey { 0.2f, 0.2f, 0.2f, 1.0f };
-    rast::Rasterizer rasterizer({
-        rast::Rasterizer::Options::FillType::Fill,
-        rast::Rasterizer::Options::VertexStruct::TriangleStrip
-    });
+    rast::Rasterizer rasterizer(
+                surface.getSize(),
+                {
+                    rast::Rasterizer::Options::FillType::Fill,
+                    rast::Rasterizer::Options::VertexStruct::TriangleStrip
+                }
+    );
+    render::Renderer renderer;
 
     mesh::Mesh cube = {
         {
@@ -48,7 +54,9 @@ int main() {
     utils::Vec2f translation{ 0.0f, 0.0f };
     do {
         surface.clear(color::Color::Black);
-        rasterizer.render(surface, cube);
+        render::GBuffer gBuffer(surface);
+        rasterizer.fillGBuffer(gBuffer, cube);
+        renderer.render(surface, gBuffer);
         surface.display();
 
         input = getchar();

@@ -14,14 +14,20 @@ add_executable(${PROJECT_NAME}
     src/color/Color.cpp
     src/utils/Vec.hpp
     src/utils/Vec.cpp
-    src/surface/RenderTarget.hpp
-    src/surface/RenderTarget.cpp
+    src/utils/Geometry.hpp
+    src/utils/Geometry.cpp
     src/surface/Surface.hpp
     src/surface/Surface.cpp
     src/surface/ConsoleSurface.hpp
     src/surface/ConsoleSurface.cpp
     src/rasterizer/Rasterizer.hpp
     src/rasterizer/Rasterizer.cpp
+    src/render/RenderTarget.hpp
+    src/render/RenderTarget.cpp
+    src/render/Renderer.hpp
+    src/render/Renderer.cpp
+    src/render/GBuffer.hpp
+    src/render/GBuffer.cpp
     src/mesh/Vertex.hpp
     src/mesh/Vertex.cpp
     src/mesh/Line.hpp

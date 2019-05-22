@@ -23,7 +23,7 @@ void ConsoleSurface::display() const {
         if(x == 0) {
             std::cout << "|";
         }
-        std::cout << mapPixel(pixel.color);
+        std::cout << mapPixel(pixel);
         if(++x >= m_SIZE.x) {
             std::cout << "|\n";
             x = 0;
