@@ -23,6 +23,11 @@ public:
     float a;
 
     static Color Black;
+    static Color White;
+    static Color Grey;
+    static Color Red;
+    static Color Green;
+    static Color Blue;
 };
 
 

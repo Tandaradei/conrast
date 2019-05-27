@@ -7,7 +7,7 @@ void Renderer::render(RenderTarget &renderTarget, const GBuffer &gBuffer) {
     for (int y = 0; y < renderTarget.getSize().y; y++) {
         for (int x = 0; x < renderTarget.getSize().x; x++) {
             const auto& gBufferValue = gBuffer.getValue({ x, y });
-            renderTarget.drawPixel({ x, y }, gBufferValue.diffuse);
+            renderTarget.drawPixel({ x, y }, gBufferValue.diffuse * ((1000.0f - gBufferValue.depth) / 1000.0f) );
         }
     }
 }

@@ -45,5 +45,10 @@ Color Color::operator+(const Color& other) const {
 }
 
 Color Color::Black = Color{ 0.0f, 0.0f, 0.0f, 1.0f };
+Color Color::White = Color{ 1.0f, 1.0f, 1.0f, 1.0f };
+Color Color::Grey = Color{ 0.5f, 0.5f, 0.5f, 1.0f };
+Color Color::Red = Color{ 1.0f, 0.0f, 0.0f, 1.0f };
+Color Color::Green = Color{ 0.0f, 1.0f, 0.0f, 1.0f };
+Color Color::Blue = Color{ 0.0f, 0.0f, 1.0f, 1.0f };
 
 }}

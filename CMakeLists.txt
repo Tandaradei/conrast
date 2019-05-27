@@ -9,6 +9,7 @@ SET(BASEPATH "${CMAKE_SOURCE_DIR}/src")
 INCLUDE_DIRECTORIES("${BASEPATH}")
 
 add_executable(${PROJECT_NAME}
+    external/stb_image_write.h
     src/main.cpp
     src/color/Color.hpp
     src/color/Color.cpp
@@ -20,6 +21,8 @@ add_executable(${PROJECT_NAME}
     src/surface/Surface.cpp
     src/surface/ConsoleSurface.hpp
     src/surface/ConsoleSurface.cpp
+    src/surface/ImageSurface.hpp
+    src/surface/ImageSurface.cpp
     src/rasterizer/Rasterizer.hpp
     src/rasterizer/Rasterizer.cpp
     src/render/RenderTarget.hpp
