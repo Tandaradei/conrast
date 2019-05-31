@@ -9,12 +9,12 @@ GBuffer::GBuffer(const RenderTarget& renderTarget)
 }
 
 const GBuffer::Value& GBuffer::getValue(utils::Vec2i position) const {
-    return m_values[static_cast<size_t>(position.x * m_SIZE.y + position.y)];
+    return m_values[static_cast<size_t>(position.y * m_SIZE.x + position.x)];
 }
 
 
 GBuffer::Value& GBuffer::getValueMut(utils::Vec2i position) {
-    return m_values[static_cast<size_t>(position.x * m_SIZE.y + position.y)];
+    return m_values[static_cast<size_t>(position.y * m_SIZE.x + position.x)];
 }
 
 }}

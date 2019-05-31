@@ -11,6 +11,7 @@ namespace conrast { namespace render {
 class GBuffer
 {
 public:
+    //const float MAX_DEPTH = 1000.0f;
     struct Value {
         color::Color diffuse = color::Color::Black;
         utils::Vec3f normal = { 0.0f, 0.0f, -1.0f };
