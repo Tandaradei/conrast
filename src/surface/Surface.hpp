@@ -4,11 +4,11 @@
 #include <stdint.h>
 #include <vector>
 
-#include "surface/RenderTarget.hpp"
+#include "render/RenderTarget.hpp"
 
 namespace conrast { namespace surface {
 
-class Surface : public RenderTarget
+class Surface : public render::RenderTarget
 {
 public:
     Surface(int width, int height);

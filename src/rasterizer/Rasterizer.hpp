@@ -1,7 +1,7 @@
 #ifndef RASTERIZER_HPP
 #define RASTERIZER_HPP
 
-#include "surface/RenderTarget.hpp"
+#include "render/GBuffer.hpp"
 #include "mesh/Line.hpp"
 #include "mesh/Triangle.hpp"
 #include "mesh/Mesh.hpp"
@@ -36,24 +36,24 @@ public:
 
 public:
     Rasterizer();
-    Rasterizer(Options m_options);
+    Rasterizer(utils::Vec2i rasterSize, Options m_options);
     void setOptions(Options m_options);
+    void setRasterSize(utils::Vec2i rasterSize);
 
-    void render(surface::RenderTarget& renderTarget, const mesh::Mesh& mesh) const;
-
-private:
-    utils::Vec3f transformToScreen(utils::Vec3f position) const;
-    utils::Vec3f transformToWorld(utils::Vec3f screenPos) const;
-    float get2DTriangleArea(utils::Vec2f a, utils::Vec2f b, utils::Vec2f c) const;
-    utils::Vec3f get2DBarycentric(utils::Vec2f a, utils::Vec2f b, utils::Vec2f c, utils::Vec2f p) const;
-    float get3DTriangleArea(utils::Vec3f a, utils::Vec3f b, utils::Vec3f c) const;
-    utils::Vec3f get3DBarycentric(utils::Vec3f a, utils::Vec3f b, utils::Vec3f c, utils::Vec3f p) const;
-
-    void drawLine(surface::RenderTarget& renderTarget, const mesh::Line& line) const;
-    void drawTriangleFilled(surface::RenderTarget& renderTarget, const mesh::Triangle& triangle) const;
-    void drawTriangleLines(surface::RenderTarget& renderTarget, const mesh::Triangle& triangle) const;
+    void fillGBuffer(render::GBuffer& gBuffer, const mesh::Mesh& mesh) const;
 
 private:
+    utils::Vec2i transformScreenToRaster(utils::Vec2f screenPos) const;
+    utils::Vec2f transformRasterToScreen(utils::Vec2i rasterPos) const;
+    utils::Vec3f transformWorldToScreen(utils::Vec3f worldPos) const;
+    utils::Vec3f transformScreenToWorld(utils::Vec3f screenPos) const;
+
+    void drawLine(render::GBuffer& gBuffer, const mesh::Line& line) const;
+    void drawTriangleFilled(render::GBuffer& gBuffer, const mesh::Triangle& triangle) const;
+    void drawTriangleLines(render::GBuffer& gBuffer, const mesh::Triangle& triangle) const;
+
+private:
+    utils::Vec2i m_rasterSize;
     Options m_options;
     Camera m_camera;
 };

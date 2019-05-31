@@ -13,7 +13,33 @@ public:
     virtual void display() const override;
 
 private:
-    char mapPixel(color::Color color) const;
+    struct AsciiColor {
+        enum class Dimming {
+          Dim,
+          Normal,
+          Bright
+        };
+        Dimming dimming;
+        uint8_t value;
+        AsciiColor(color::Color color) :
+        dimming(Dimming::Normal),
+        value(30) {
+            value += color.r > 0.5f ? 1 : 0;
+            value += color.g > 0.5f ? 2 : 0;
+            value += color.b > 0.5f ? 4 : 0;
+            float shade = std::max(color.r, std::max(color.g, color.b));
+            if(shade < 0.33f) {
+                dimming = Dimming::Dim;
+            }
+            else if(shade < 0.67f) {
+                dimming = Dimming::Normal;
+            }
+            else {
+                dimming = Dimming::Bright;
+            }
+        }
+    };
+    void showPixel(color::Color color) const;
 };
 
 } }
