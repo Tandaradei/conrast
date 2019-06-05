@@ -11,7 +11,7 @@ RenderTarget::RenderTarget(int width, int height)
 }
 
 
-void RenderTarget::drawPixel(utils::Vec2i rasterPos, color::Color color) {
+void RenderTarget::drawPixel(utils::Vec2i rasterPos, color::RGB8 color) {
     if(rasterPos.x < 0 || rasterPos.x >= m_SIZE.x || rasterPos.y < 0 || rasterPos.y >= m_SIZE.y) {
         return;
     }
@@ -19,7 +19,7 @@ void RenderTarget::drawPixel(utils::Vec2i rasterPos, color::Color color) {
 }
 
 
-void RenderTarget::clear(color::Color color) {
+void RenderTarget::clear(color::RGB8 color) {
     for(auto& pixel: m_pixels) {
         pixel= color;
     }

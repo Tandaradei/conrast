@@ -215,13 +215,19 @@ void Rasterizer::drawTriangleFilled(render::GBuffer& gBuffer, const mesh::Triang
                 triangle.vertices[1].position,
                 triangle.vertices[2].position,
                 p);
-        auto color = triangle.vertices[0].color * ww.x +
-                     triangle.vertices[1].color * ww.y +
-                     triangle.vertices[2].color * ww.z;
+        auto color = color::RGB32f { triangle.vertices[0].color } * ww.x +
+                     color::RGB32f { triangle.vertices[1].color } * ww.y +
+                     color::RGB32f { triangle.vertices[2].color } * ww.z;
+        auto normal =   triangle.vertices[0].normal * ww.x +
+                        triangle.vertices[1].normal * ww.y +
+                        triangle.vertices[2].normal * ww.z;
+        normal.normalize();
         float depth = z - 1.0f;
         auto& gBufferValue = gBuffer.getValueMut(rasterPos);
         if(depth < gBufferValue.depth) {
             gBufferValue.diffuse = color;
+            gBufferValue.position = p;
+            gBufferValue.normal = normal;
             gBufferValue.depth = depth;
         }
     };

@@ -13,7 +13,8 @@ class GBuffer
 public:
     //const float MAX_DEPTH = 1000.0f;
     struct Value {
-        color::Color diffuse = color::Color::Black;
+        color::RGB8 diffuse = color::Black;
+        utils::Vec3f position = { 0.0f, 0.0f, 0.0f };
         utils::Vec3f normal = { 0.0f, 0.0f, -1.0f };
         float depth = 1000.0f;
     };

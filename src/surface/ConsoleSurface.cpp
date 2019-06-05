@@ -34,7 +34,7 @@ void ConsoleSurface::display() const {
 }
 
 
-void ConsoleSurface::showPixel(color::Color color) const {
+void ConsoleSurface::showPixel(color::RGB8 color) const {
     AsciiColor asciiColor(color);
     std::string format = "\033[0;";
     switch (asciiColor.dimming) {

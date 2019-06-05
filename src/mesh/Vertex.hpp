@@ -9,7 +9,8 @@ namespace conrast { namespace mesh {
 struct Vertex
 {
     utils::Vec3f position;
-    color::Color color;
+    utils::Vec3f normal;
+    color::RGB8 color;
 };
 
 } }
