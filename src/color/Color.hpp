@@ -2,7 +2,9 @@
 #define COLOR_HPP
 
 #include <stdint.h>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 namespace conrast { namespace color {
 

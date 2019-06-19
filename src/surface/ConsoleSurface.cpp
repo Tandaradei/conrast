@@ -1,6 +1,8 @@
 #include "ConsoleSurface.hpp"
 
 #include <iostream>
+#include <algorithm>
+#include <string>
 
 namespace conrast { namespace surface {
 
@@ -31,6 +33,26 @@ void ConsoleSurface::display() const {
         }
     }
     drawHorizontalLine();
+}
+
+
+ConsoleSurface::AsciiColor::AsciiColor(color::RGB8 color) :
+	dimming(Dimming::Normal),
+	value(30) 
+{
+	value += color.r > 0.5f ? 1 : 0;
+	value += color.g > 0.5f ? 2 : 0;
+	value += color.b > 0.5f ? 4 : 0;
+	float shade = std::max(color.r, std::max(color.g, color.b));
+	if (shade < 255 / 3) {
+		dimming = Dimming::Dim;
+	}
+	else if (shade < 2 * 255 / 3) {
+		dimming = Dimming::Normal;
+	}
+	else {
+		dimming = Dimming::Bright;
+	}
 }
 
 

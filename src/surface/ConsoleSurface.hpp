@@ -21,23 +21,7 @@ private:
         };
         Dimming dimming;
         uint8_t value;
-        AsciiColor(color::RGB8 color) :
-        dimming(Dimming::Normal),
-        value(30) {
-            value += color.r > 0.5f ? 1 : 0;
-            value += color.g > 0.5f ? 2 : 0;
-            value += color.b > 0.5f ? 4 : 0;
-            float shade = std::max(color.r, std::max(color.g, color.b));
-            if(shade < 255/3) {
-                dimming = Dimming::Dim;
-            }
-            else if(shade < 2*255/3) {
-                dimming = Dimming::Normal;
-            }
-            else {
-                dimming = Dimming::Bright;
-            }
-        }
+		AsciiColor(color::RGB8 color);
     };
     void showPixel(color::RGB8 color) const;
 };
