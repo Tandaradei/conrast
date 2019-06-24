@@ -41,8 +41,8 @@ conrast::mesh::Mesh mkCube(conrast::utils::Vec3f size, conrast::color::RGB8 colo
 
 int main() {
     using namespace conrast;
-    surface::ConsoleSurface surface(140, 70);
-    //surface::ImageSurface surface(800, 800);
+    //surface::ConsoleSurface surface(140, 70);
+    surface::ImageSurface surface(1280, 720);
     rast::Rasterizer rasterizer(
                 surface.getSize(),
                 {

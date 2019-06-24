@@ -36,7 +36,10 @@ utils::Vec2i Rasterizer::transformScreenToRaster(utils::Vec2f screenPos) const {
 
 
 utils::Vec2f Rasterizer::transformRasterToScreen(utils::Vec2i rasterPos) const {
-    utils::Vec2f halfSize{ static_cast<float>(m_rasterSize.x) * 0.5f, static_cast<float>(m_rasterSize.y) * 0.5f };
+    utils::Vec2f halfSize{
+        static_cast<float>(m_rasterSize.x) * 0.5f,
+        static_cast<float>(m_rasterSize.y) * 0.5f
+    };
     return {
         (static_cast<float>(rasterPos.x) - halfSize.x) / halfSize.x,
         (static_cast<float>(rasterPos.y) - halfSize.y) / halfSize.y
@@ -45,12 +48,20 @@ utils::Vec2f Rasterizer::transformRasterToScreen(utils::Vec2i rasterPos) const {
 
 
 utils::Vec3f Rasterizer::transformWorldToScreen(utils::Vec3f position) const {
-    return { position.x / position.z, -position.y / position.z , position.z };
+    return {
+        position.x / position.z / m_camera.imagePlaneHorizontalSize,
+        -position.y / position.z / m_camera.imagePlaneVerticalSize,
+        position.z
+    };
 }
 
 
 utils::Vec3f Rasterizer::transformScreenToWorld(utils::Vec3f screenPos) const {
-    return { screenPos.x * screenPos.z, -screenPos.y * screenPos.z, screenPos.z };
+    return {
+        screenPos.x * screenPos.z * m_camera.imagePlaneHorizontalSize,
+        -screenPos.y * screenPos.z * m_camera.imagePlaneVerticalSize,
+        screenPos.z
+    };
 }
 
 
