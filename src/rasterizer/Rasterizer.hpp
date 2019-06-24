@@ -17,16 +17,8 @@ public:
             Line,
             Fill
         };
-        enum class VertexStruct {
-            Points,
-            Lines,
-            LineStrip,
-            Triangles,
-            TriangleStrip
-        };
 
         FillType fillType = FillType::Fill;
-        VertexStruct vertexStruct = VertexStruct::TriangleStrip;
     };
 
     struct Camera {

@@ -17,7 +17,7 @@ void Renderer::render(RenderTarget &renderTarget, const GBuffer &gBuffer) {
                 float dot = gBufferValue.normal.dot(toLight.normalized());
                 if(dot > 0.0f) {
                     diffuse *= dot;
-                    diffuse *= 1.0f - (squaredDistanceToLight / (LIGHT_RADIUS * LIGHT_RADIUS));
+                    diffuse *= powf(1.0f - (squaredDistanceToLight / (LIGHT_RADIUS * LIGHT_RADIUS)), 3.0f);
                     color_out = diffuse;
                 }
             }

@@ -66,8 +66,8 @@ utils::Vec3f Rasterizer::transformScreenToWorld(utils::Vec3f screenPos) const {
 
 
 void Rasterizer::fillGBuffer(render::GBuffer &gBuffer, const mesh::Mesh &mesh) const {
-    switch(m_options.vertexStruct) {
-        case Options::VertexStruct::Points: {
+    switch(mesh.vertexStruct) {
+        case mesh::Mesh::VertexStruct::Points: {
             for(const auto& index : mesh.indexes) {
                 const auto& vertex = mesh.vertices[index];
                 if(vertex.position.z >= 1.0f) {
@@ -86,7 +86,7 @@ void Rasterizer::fillGBuffer(render::GBuffer &gBuffer, const mesh::Mesh &mesh) c
             }
             break;
         }
-        case Options::VertexStruct::Lines: {
+        case mesh::Mesh::VertexStruct::Lines: {
             if(mesh.indexes.size() < 2 || mesh.indexes.size() % 2 != 0) {
                 return;
             }
@@ -95,7 +95,7 @@ void Rasterizer::fillGBuffer(render::GBuffer &gBuffer, const mesh::Mesh &mesh) c
             }
             break;
         }
-        case Options::VertexStruct::LineStrip: {
+        case mesh::Mesh::VertexStruct::LineStrip: {
             if(mesh.indexes.size() < 2) {
                 return;
             }
@@ -104,7 +104,7 @@ void Rasterizer::fillGBuffer(render::GBuffer &gBuffer, const mesh::Mesh &mesh) c
             }
             break;
         }
-        case Options::VertexStruct::Triangles: {
+        case mesh::Mesh::VertexStruct::Triangles: {
             if(mesh.indexes.size() < 3 || mesh.indexes.size() % 3 != 0) {
                 return;
             }
@@ -120,7 +120,7 @@ void Rasterizer::fillGBuffer(render::GBuffer &gBuffer, const mesh::Mesh &mesh) c
             }
             break;
         }
-        case Options::VertexStruct::TriangleStrip: {
+        case mesh::Mesh::VertexStruct::TriangleStrip: {
             if(mesh.indexes.size() < 3) {
                 return;
             }

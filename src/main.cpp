@@ -35,7 +35,8 @@ conrast::mesh::Mesh mkCube(conrast::utils::Vec3f size, conrast::color::RGB8 colo
             { mkCubeVert("LTB", size, color) },
             { mkCubeVert("LBB", size, color) },
         },
-        { 0, 1, 2, 3, 4, 1, 5, 0, 6, 2, 7, 4, 6, 5 }
+        { 0, 1, 2, 3, 4, 1, 5, 0, 6, 2, 7, 4, 6, 5 },
+        mesh::Mesh::VertexStruct::TriangleStrip
     };
 }
 
@@ -46,8 +47,7 @@ int main() {
     rast::Rasterizer rasterizer(
                 surface.getSize(),
                 {
-                    rast::Rasterizer::Options::FillType::Fill,
-                    rast::Rasterizer::Options::VertexStruct::TriangleStrip
+                    rast::Rasterizer::Options::FillType::Fill
                 }
     );
     render::Renderer renderer;
@@ -61,6 +61,7 @@ int main() {
         },
         { 0, 1, 2, 3 }
     };
+
     mesh::Mesh bigCube = mkCube({ 1.0f, 1.0f, 1.0f }, color::Red);
     mesh::Mesh smallCube = mkCube({ 0.5f, 0.5f, 0.5f }, color::Blue);
 
