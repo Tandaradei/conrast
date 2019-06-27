@@ -31,6 +31,8 @@ add_executable(${PROJECT_NAME}
     src/render/Renderer.cpp
     src/render/GBuffer.hpp
     src/render/GBuffer.cpp
+    src/render/FragmentShader.hpp
+    src/render/FragmentShader.cpp
     src/mesh/Vertex.hpp
     src/mesh/Vertex.cpp
     src/mesh/Line.hpp

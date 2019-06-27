@@ -110,7 +110,7 @@ void Rasterizer::fillGBuffer(render::GBuffer &gBuffer, const mesh::Mesh &mesh) c
             }
             if(m_options.fillType == Options::FillType::Fill) {
                 for(auto it = mesh.indexes.begin(); it != mesh.indexes.cend(); ) {
-                    drawTriangleFilled(gBuffer, { mesh.vertices[*it++], mesh.vertices[*it++], mesh.vertices[*it++] });
+                    drawTriangleFilled(gBuffer, mesh, { mesh.vertices[*it++], mesh.vertices[*it++], mesh.vertices[*it++] });
                 }
             }
             else if(m_options.fillType == Options::FillType::Line) {
@@ -131,7 +131,7 @@ void Rasterizer::fillGBuffer(render::GBuffer &gBuffer, const mesh::Mesh &mesh) c
             };
             if(m_options.fillType == Options::FillType::Fill) {
                 for(auto it = mesh.indexes.begin() + 3; it != mesh.indexes.cend(); it++) {
-                    drawTriangleFilled(gBuffer, triangle);
+                    drawTriangleFilled(gBuffer, mesh, triangle);
                     triangle.vertices[0] = triangle.vertices[1];
                     triangle.vertices[1] = triangle.vertices[2];
                     triangle.vertices[2] = mesh.vertices[*it];
@@ -179,7 +179,7 @@ void Rasterizer::drawLine(render::GBuffer& gBuffer, const mesh::Line& line) cons
 }
 
 
-void Rasterizer::drawTriangleFilled(render::GBuffer& gBuffer, const mesh::Triangle& triangle) const {
+void Rasterizer::drawTriangleFilled(render::GBuffer& gBuffer, const mesh::Mesh& mesh, const mesh::Triangle& triangle) const {
     const auto as = transformWorldToScreen(triangle.vertices[0].position);
     const auto bs = transformWorldToScreen(triangle.vertices[1].position);
     const auto cs = transformWorldToScreen(triangle.vertices[2].position);
@@ -215,32 +215,47 @@ void Rasterizer::drawTriangleFilled(render::GBuffer& gBuffer, const mesh::Triang
     auto drawPixel = [&](const utils::Vec3f& a, const utils::Vec3f& b, const utils::Vec3f& c, utils::Vec2i rasterPos) {
         auto screenPoint2D = transformRasterToScreen(rasterPos);
         utils::Vec3f ws = utils::geometry::calc2DBarycentric(a, b, c, screenPoint2D);
-        //if(ws.x < 0.0f || ws.y < 0.0f || ws.z < 0.0f || ws.x + ws.y + ws.z > 1.0f) { return; }
         float z = 1.0f /
                ((1.0f / a.z) * ws.x +
                (1.0f / b.z) * ws.y +
                (1.0f / c.z) * ws.z);
+        const float depth = z - 1.0f;
+        auto& gBufferValueMut = gBuffer.getValueMut(rasterPos);
+        // Early Z-Test
+        if(depth >= gBufferValueMut.depth) {
+            return;
+        }
         utils::Vec3f p = transformScreenToWorld({ screenPoint2D.x, screenPoint2D.y, z });
         utils::Vec3f ww = utils::geometry::calc3DBarycentric(
                 triangle.vertices[0].position,
                 triangle.vertices[1].position,
                 triangle.vertices[2].position,
                 p);
-        auto color = color::RGB32f { triangle.vertices[0].color } * ww.x +
-                     color::RGB32f { triangle.vertices[1].color } * ww.y +
-                     color::RGB32f { triangle.vertices[2].color } * ww.z;
+        auto vertexColor = color::RGB32f { triangle.vertices[0].color } * ww.x +
+                           color::RGB32f { triangle.vertices[1].color } * ww.y +
+                           color::RGB32f { triangle.vertices[2].color } * ww.z;
         auto normal =   triangle.vertices[0].normal * ww.x +
                         triangle.vertices[1].normal * ww.y +
                         triangle.vertices[2].normal * ww.z;
         normal.normalize();
-        float depth = z - 1.0f;
-        auto& gBufferValue = gBuffer.getValueMut(rasterPos);
+        auto outColor = mesh.fragShader({
+             utils::Vec2f{ screenPoint2D.x + 1.0f, screenPoint2D.y + 1.0f } * 0.5f,
+             vertexColor,
+             p,
+             normal
+        });
+
+        gBufferValueMut.diffuse = outColor;
+        gBufferValueMut.depth = depth;
+        /*
+        auto& gBufferValueMut = gBuffer.getValueMut(rasterPos);
         if(depth < gBufferValue.depth) {
-            gBufferValue.diffuse = color;
-            gBufferValue.position = p;
-            gBufferValue.normal = normal;
-            gBufferValue.depth = depth;
+            gBufferValueMut.diffuse = color;
+            gBufferValueMut.position = p;
+            gBufferValueMut.normal = normal;
+            gBufferValueMut.depth = depth;
         }
+        */
     };
     // Upper part
     int yStart = clamp(rasterTriangleSorted[0].y, 0, m_rasterSize.y);

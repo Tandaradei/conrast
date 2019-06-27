@@ -6,6 +6,41 @@
 #include "render/Renderer.hpp"
 #include "utils/Vec.hpp"
 
+static const conrast::utils::Vec3f LIGHT_POS = { -0.5f, -1.0f, 2.75f };
+static const float LIGHT_RADIUS = 100.0f;
+
+
+conrast::color::RGB8 defaultFrag(const conrast::render::FragmentShaderParameters& params) {
+    using namespace conrast;
+    auto toLight = LIGHT_POS - params.worldPosition;
+    float distanceToLight = toLight.length();
+    color::RGB8 color_out = color::Black;
+    if(distanceToLight < LIGHT_RADIUS) {
+        float dot = params.normal.dot(toLight.normalized());
+        if(dot > 0.0f) {
+            auto color = params.vertexColor;
+            color *= dot;
+            color *= 1.0f - powf((distanceToLight / LIGHT_RADIUS), 3.0f);
+            color_out = color;
+        }
+    }
+    return color_out;
+}
+
+conrast::color::RGB8 simpleLighting(const conrast::render::FragmentShaderParameters& params) {
+    using namespace conrast;
+    auto toLight = LIGHT_POS - params.worldPosition;
+    float distanceToLight = toLight.length();
+    color::RGB8 color_out = color::Black;
+    if(distanceToLight < LIGHT_RADIUS) {
+        float dot = params.normal.dot(toLight.normalized());
+        if(dot > 0.0f) {
+            color_out = params.vertexColor;
+        }
+    }
+    return color_out;
+}
+
 conrast::mesh::Vertex mkCubeVert(const char txt[3], conrast::utils::Vec3f size, conrast::color::RGB8 color) {
     return  {
         {
@@ -36,6 +71,7 @@ conrast::mesh::Mesh mkCube(conrast::utils::Vec3f size, conrast::color::RGB8 colo
             { mkCubeVert("LBB", size, color) },
         },
         { 0, 1, 2, 3, 4, 1, 5, 0, 6, 2, 7, 4, 6, 5 },
+        defaultFrag,
         mesh::Mesh::VertexStruct::TriangleStrip
     };
 }
@@ -59,10 +95,12 @@ int main() {
             { { -100.0f, -1.8f, 1000.0f }, { 0.0f, 1.0f, 0.0f }, color::Green },
             { { 100.0f, -1.8f, 1000.0f }, { 0.0f, 1.0f, 0.0f }, color::Green }
         },
-        { 0, 1, 2, 3 }
+        { 0, 1, 2, 3 },
+        defaultFrag
     };
 
     mesh::Mesh bigCube = mkCube({ 1.0f, 1.0f, 1.0f }, color::Red);
+    bigCube.fragShader = simpleLighting;
     mesh::Mesh smallCube = mkCube({ 0.5f, 0.5f, 0.5f }, color::Blue);
 
     auto translateMesh = [](mesh::Mesh& mesh, utils::Vec3f translation) {

@@ -41,7 +41,7 @@ private:
     utils::Vec3f transformScreenToWorld(utils::Vec3f screenPos) const;
 
     void drawLine(render::GBuffer& gBuffer, const mesh::Line& line) const;
-    void drawTriangleFilled(render::GBuffer& gBuffer, const mesh::Triangle& triangle) const;
+    void drawTriangleFilled(render::GBuffer& gBuffer, const mesh::Mesh& mesh, const mesh::Triangle& triangle) const;
     void drawTriangleLines(render::GBuffer& gBuffer, const mesh::Triangle& triangle) const;
 
 private:
