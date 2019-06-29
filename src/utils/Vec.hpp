@@ -2,6 +2,10 @@
 #define VEC_HPP
 
 
+#include <stdint.h>
+#ifndef _WIN32
+#include <unistd.h>
+#endif
 #include <cmath>
 
 namespace conrast { namespace utils {
@@ -74,7 +78,7 @@ struct Vec2 {
 };
 
 using Vec2f = Vec2<float>;
-using Vec2i = Vec2<int>;
+using Vec2i = Vec2<int32_t>;
 
 template <typename T>
 struct Vec3 {

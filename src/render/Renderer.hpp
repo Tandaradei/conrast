@@ -1,7 +1,7 @@
 #ifndef RENDERER_HPP
 #define RENDERER_HPP
 
-#include "render/GBuffer.hpp"
+#include "render/Framebuffer.hpp"
 #include "render/RenderTarget.hpp"
 
 namespace conrast { namespace render {
@@ -9,7 +9,7 @@ namespace conrast { namespace render {
 class Renderer
 {
 public:
-    void render(RenderTarget& renderTarget, const GBuffer& gBuffer);
+    void render(RenderTarget& renderTarget, const Framebuffer& framebuffer);
 };
 
 } }

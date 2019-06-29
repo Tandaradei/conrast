@@ -1,4 +1,5 @@
 #include <iostream>
+#include <chrono>
 
 #include "surface/ConsoleSurface.hpp"
 #include "surface/ImageSurface.hpp"
@@ -87,6 +88,7 @@ int main() {
                 }
     );
     render::Renderer renderer;
+	render::Framebuffer framebuffer(surface.getSize(), 0.1f, 100.0f);
 
     mesh::Mesh floor = {
         {
@@ -100,7 +102,7 @@ int main() {
     };
 
     mesh::Mesh bigCube = mkCube({ 1.0f, 1.0f, 1.0f }, color::Red);
-    bigCube.fragShader = simpleLighting;
+    //bigCube.fragShader = simpleLighting;
     mesh::Mesh smallCube = mkCube({ 0.5f, 0.5f, 0.5f }, color::Blue);
 
     auto translateMesh = [](mesh::Mesh& mesh, utils::Vec3f translation) {
@@ -112,38 +114,52 @@ int main() {
     translateMesh(bigCube, { -2.0f, -1.5f, 3.0f });
     translateMesh(smallCube, { 1.2f, 0.0f, 2.0f });
 
-    char input = 'q';
+    std::string input = "";
+	bool shouldQuit = false;
     utils::Vec2f translation{ 0.0f, 0.0f };
     do {
-        surface.clear(color::Black);
-        render::GBuffer gBuffer(surface);
-        rasterizer.fillGBuffer(gBuffer, floor);
-        rasterizer.fillGBuffer(gBuffer, bigCube);
-        rasterizer.fillGBuffer(gBuffer, smallCube);
-        renderer.render(surface, gBuffer);
+		auto start = std::chrono::system_clock::now();
+
+		framebuffer.clear();
+        rasterizer.rasterize(framebuffer, floor);
+        rasterizer.rasterize(framebuffer, bigCube);
+        rasterizer.rasterize(framebuffer, smallCube);
+
+		surface.clear(color::Black);
+        renderer.render(surface, framebuffer);
         surface.display();
 
-        input = getchar();
+		auto end = std::chrono::system_clock::now();
+		auto renderTime = end - start;
+
+		std::cout << "Rendering took " << std::chrono::duration_cast<std::chrono::milliseconds>(renderTime).count() << "ms" << std::endl;
+
+		std::cin >> input;
         translateMesh(smallCube, { -translation.x, -translation.y, 0.0f });
-        switch(input) {
-        case 'a':
-            translation.x -= 0.25f;
-            break;
-        case 'd':
-            translation.x += 0.25f;
-            break;
-        case 'w':
-            translation.y += 0.25f;
-            break;
-        case 's':
-            translation.y -= 0.25f;
-            break;
-        default:
-            break;
-        }
+		for (auto character : input) {
+			switch (character) {
+			case 'a':
+				translation.x -= 0.25f;
+				break;
+			case 'd':
+				translation.x += 0.25f;
+				break;
+			case 'w':
+				translation.y += 0.25f;
+				break;
+			case 's':
+				translation.y -= 0.25f;
+				break;
+			case 'q':
+				shouldQuit = true;
+				break;
+			default:
+				break;
+			}
+		}
 
         translateMesh(smallCube, { translation.x, translation.y, 0.0f });
-    } while(input != 'q');
+    } while(!shouldQuit);
 
     return 0;
 }
