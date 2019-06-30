@@ -209,7 +209,7 @@ void Rasterizer::drawTriangleFilled(render::Framebuffer& framebuffer, const rend
 		const float z = 1.0f /
 			((1.0f / a.z) * ws.x +
 			(1.0f / b.z) * ws.y +
-				(1.0f / c.z) * ws.z);
+			(1.0f / c.z) * ws.z);
 		// Early Z-Test
 		if (framebuffer.isSavedNearer(rasterPos, z)) {
 			return;
@@ -222,9 +222,9 @@ void Rasterizer::drawTriangleFilled(render::Framebuffer& framebuffer, const rend
 			p);
 
 		const color::RGB32f vertexColor =
-			color::RGB32f{ triangle.vertices[0].color } *ww.x +
-			color::RGB32f{ triangle.vertices[1].color } *ww.y +
-			color::RGB32f{ triangle.vertices[2].color } *ww.z;
+			color::RGB32f{ triangle.vertices[0].color } * ww.x +
+			color::RGB32f{ triangle.vertices[1].color } * ww.y +
+			color::RGB32f{ triangle.vertices[2].color } * ww.z;
 
 		const utils::Vec3f normal = utils::Vec3f(
 			triangle.vertices[0].normal * ww.x +
@@ -232,7 +232,7 @@ void Rasterizer::drawTriangleFilled(render::Framebuffer& framebuffer, const rend
 			triangle.vertices[2].normal * ww.z).normalize();
 
 		const color::RGB8 outColor = fragShader({
-				utils::Vec2f{ screenPoint2D.x + 1.0f, screenPoint2D.y + 1.0f } *0.5f,
+				utils::Vec2f{ screenPoint2D.x + 1.0f, screenPoint2D.y + 1.0f } * 0.5f,
 				vertexColor,
 				p,
 				normal

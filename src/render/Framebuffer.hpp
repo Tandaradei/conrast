@@ -17,13 +17,13 @@ public:
 	void setColor(utils::Vec2i position, color::RGB8 color);
 	color::RGB8* getColorData(utils::Vec2i position = { 0, 0 });
 
-	// Returned depth is between -1 (near) and 1(far)
+	// Returned depth is between 0 (near) and 1 (far)
 	float getDepthNormalized(utils::Vec2i position) const;
-	// depth must be between -1 (near) and 1(far)
+	// depth must be between 0 (near) and 1 (far)
 	void setDepthNormalized(utils::Vec2i position, float depth);
 	// Returns true if passed depth is nearer than saved depth and update saved depth with passed depth
 	bool updateDepth(utils::Vec2i position, float depth);
-	// depth must be between -1 (near) and 1(far)
+	// depth must be between 0 (near) and 1 (far)
 	// Returns true if passed depth is nearer than saved depth and update saved depth with passed depth
 	bool updateDepthNormalized(utils::Vec2i position, float depth);
 

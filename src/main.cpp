@@ -7,7 +7,7 @@
 #include "render/Renderer.hpp"
 #include "utils/Vec.hpp"
 
-static const conrast::utils::Vec3f LIGHT_POS = { -0.5f, -1.0f, 2.75f };
+static const conrast::utils::Vec3f LIGHT_POS = { -0.5f, 1.0f, 1.75f };
 static const float LIGHT_RADIUS = 100.0f;
 
 
@@ -82,13 +82,11 @@ int main() {
     //surface::ConsoleSurface surface(140, 70);
     surface::ImageSurface surface(1280, 720);
     rast::Rasterizer rasterizer(
-                surface.getSize(),
-                {
-                    rast::Rasterizer::Options::FillType::Fill
-                }
+        surface.getSize(),
+        { rast::Rasterizer::Options::FillType::Fill }
     );
     render::Renderer renderer;
-	render::Framebuffer framebuffer(surface.getSize(), 0.1f, 100.0f);
+	render::Framebuffer framebuffer(surface.getSize(), 0.5f, 1000.0f);
 
     mesh::Mesh floor = {
         {
@@ -127,10 +125,12 @@ int main() {
 
 		surface.clear(color::Black);
         renderer.render(surface, framebuffer);
-        surface.display();
 
 		auto end = std::chrono::system_clock::now();
 		auto renderTime = end - start;
+
+        surface.display();
+
 
 		std::cout << "Rendering took " << std::chrono::duration_cast<std::chrono::milliseconds>(renderTime).count() << "ms" << std::endl;
 

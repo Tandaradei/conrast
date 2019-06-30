@@ -8,7 +8,7 @@ Framebuffer::Framebuffer(const utils::Vec2i size, const float near, const float 
 m_SIZE(size),
 m_near(near),
 m_far(far),
-m_depthTransformSummand((far + near) /(far - near)),
+m_depthTransformSummand(0.5f + (far + near) / (2.0f * (far - near))),
 m_depthTransformFactor((-2.0f * far * near) / (far - near)){
 	m_color.resize(SIZE_T(size.x) * SIZE_T(size.y), color::Black);
 	m_depth.resize(SIZE_T(size.x) * SIZE_T(size.y), 1.0f);

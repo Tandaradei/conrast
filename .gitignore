@@ -75,4 +75,4 @@ CMakeLists.txt.user*
 # Build directory
 build/*
 /.vs
-/out/build/x64-Debug
+/out/*
