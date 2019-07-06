@@ -8,12 +8,16 @@
 
 namespace conrast { namespace surface {
 
-class Surface : public render::RenderTarget
+class Surface
 {
 public:
-    Surface(int width, int height);
-    virtual ~Surface();
-    virtual void display() const = 0;
+	Surface(utils::Vec2i resolution);
+    virtual void display(const render::RenderTarget& renderTarget) const = 0;
+
+	void setResolution(utils::Vec2i resolution);
+	utils::Vec2i getResolution() const;
+protected:
+	utils::Vec2i m_resolution;
 };
 
 }}

@@ -9,8 +9,8 @@ namespace conrast { namespace surface {
 class ConsoleSurface : public Surface
 {
 public:
-    ConsoleSurface(uint16_t width, uint16_t height);
-    virtual void display() const override;
+    ConsoleSurface(utils::Vec2i resolution);
+    virtual void display(const render::RenderTarget& renderTarget) const override;
 
 private:
     struct AsciiColor {

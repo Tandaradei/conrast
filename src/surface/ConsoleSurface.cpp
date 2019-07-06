@@ -6,32 +6,38 @@
 
 namespace conrast { namespace surface {
 
-ConsoleSurface::ConsoleSurface(uint16_t width, uint16_t height)
-    : Surface(width, height)
+ConsoleSurface::ConsoleSurface(utils::Vec2i resolution)
+	:Surface(resolution)
 {}
 
 
-void ConsoleSurface::display() const {
+void ConsoleSurface::display(const render::RenderTarget& renderTarget) const {
+	const auto size = renderTarget.getSize();
+	const utils::Vec2f resolutionScaling = utils::Vec2f{
+		static_cast<float>(size.x) / static_cast<float>(m_resolution.x),
+		static_cast<float>(size.y) / static_cast<float>(m_resolution.y)
+	};
+
     auto drawHorizontalLine = [=](){
         std::cout << "\033[0m";
-        for(int i = 0; i < m_SIZE.x + 2; i++) {
+        for(int i = 0; i < m_resolution.x + 2; i++) {
             std::cout << "-";
         }
         std::cout << '\n';
     };
 
     drawHorizontalLine();
-    int x = 0;
-    for (auto pixel : m_pixels) {
-        if(x == 0) {
-            std::cout << "\033[0m|";
-        }
-        showPixel(pixel);
-        if(++x >= m_SIZE.x) {
-            std::cout << "\033[0m|\n";
-            x = 0;
-        }
-    }
+    unsigned int x = 0;
+	const auto& pixels = renderTarget.getPixels();
+	for (float y = 0.0f; y < static_cast<float>(m_resolution.y); y += 1.0f) {
+		std::cout << "\033[0m|";
+		for (float x = 0.0f; x < static_cast<float>(m_resolution.x); x += 1.0f) {
+			size_t pixelIndex = static_cast<size_t>(y * resolutionScaling.y) * size.x +static_cast<size_t>(x * resolutionScaling.x);
+			showPixel(pixels[pixelIndex]);
+		}
+		std::cout << "\033[0m|\n";
+	}
+
     drawHorizontalLine();
 }
 
@@ -65,7 +71,11 @@ void ConsoleSurface::showPixel(color::RGB8 color) const {
         default: break;
     }
     format += std::to_string(asciiColor.value) + "m";
-    std::cout << format << "\u2588";
+#ifdef _WIN32
+    std::cout << format << static_cast<char>(219);
+#else
+	std::cout << format << "\u2588";
+#endif
 }
 
 }}

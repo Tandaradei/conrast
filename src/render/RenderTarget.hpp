@@ -13,7 +13,8 @@ class RenderTarget
 public:
     RenderTarget(int width, int height);
 
-    void drawPixel(utils::Vec2i rasterPos, color::RGB8 color);
+    void setPixel(utils::Vec2i rasterPos, color::RGB8 color);
+	const std::vector<color::RGB8>& getPixels() const;
 
     void clear(color::RGB8 color);
 

@@ -5,6 +5,7 @@
 #include "surface/ImageSurface.hpp"
 #include "rasterizer/Rasterizer.hpp"
 #include "render/Renderer.hpp"
+#include "render/RenderTarget.hpp"
 #include "utils/Vec.hpp"
 
 static const conrast::utils::Vec3f LIGHT_POS = { -0.5f, 1.0f, 1.75f };
@@ -79,14 +80,14 @@ conrast::mesh::Mesh mkCube(conrast::utils::Vec3f size, conrast::color::RGB8 colo
 
 int main() {
     using namespace conrast;
-    //surface::ConsoleSurface surface(140, 70);
-    surface::ImageSurface surface(1280, 720);
+	render::RenderTarget resultImage(1280, 720);
+	
     rast::Rasterizer rasterizer(
-        surface.getSize(),
+		resultImage.getSize(),
         { rast::Rasterizer::Options::FillType::Fill }
     );
     render::Renderer renderer;
-	render::Framebuffer framebuffer(surface.getSize(), 0.5f, 1000.0f);
+	render::Framebuffer framebuffer(resultImage.getSize(), 0.5f, 1000.0f);
 
     mesh::Mesh floor = {
         {
@@ -116,23 +117,34 @@ int main() {
 	bool shouldQuit = false;
     utils::Vec2f translation{ 0.0f, 0.0f };
     do {
-		auto start = std::chrono::system_clock::now();
+		auto renderStart = std::chrono::system_clock::now();
 
 		framebuffer.clear();
         rasterizer.rasterize(framebuffer, floor);
         rasterizer.rasterize(framebuffer, bigCube);
         rasterizer.rasterize(framebuffer, smallCube);
 
-		surface.clear(color::Black);
-        renderer.render(surface, framebuffer);
+		resultImage.clear(color::Black);
+        renderer.render(resultImage, framebuffer);
 
-		auto end = std::chrono::system_clock::now();
-		auto renderTime = end - start;
+		auto renderEnd = std::chrono::system_clock::now();
+		auto renderTime = renderEnd - renderStart;
 
-        surface.display();
+		auto displayConsoleStart = std::chrono::system_clock::now();
+		surface::ConsoleSurface consoleSurface({ 120, 40 });
+		consoleSurface.display(resultImage);
+		auto displayConsoleEnd = std::chrono::system_clock::now();
+		auto displayConsoleTime = displayConsoleEnd - displayConsoleStart;
 
+		auto displayImageStart = std::chrono::system_clock::now();
+		surface::ImageSurface imageSurface({ 1280, 720 }, surface::ImageSurface::ImageFormat::PNG);
+		imageSurface.display(resultImage);
+		auto displayImageEnd = std::chrono::system_clock::now();
+		auto displayImageTime = displayImageEnd - displayImageStart;
 
-		std::cout << "Rendering took " << std::chrono::duration_cast<std::chrono::milliseconds>(renderTime).count() << "ms" << std::endl;
+		std::cout << "Rendering(" << resultImage.getSize().x << ", " << resultImage.getSize().y << ") took " << std::chrono::duration_cast<std::chrono::milliseconds>(renderTime).count() << "ms\n";
+		std::cout << "Displaying on console(" << consoleSurface.getResolution().x << ", " << consoleSurface.getResolution().y << ") took " << std::chrono::duration_cast<std::chrono::milliseconds>(displayConsoleTime).count() << "ms\n";
+		std::cout << "Displaying on image(" << imageSurface.getResolution().x << ", " << imageSurface.getResolution().y << ") took " << std::chrono::duration_cast<std::chrono::milliseconds>(displayImageTime).count() << "ms\n";
 
 		std::cin >> input;
         translateMesh(smallCube, { -translation.x, -translation.y, 0.0f });

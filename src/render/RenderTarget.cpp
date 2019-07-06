@@ -11,11 +11,16 @@ RenderTarget::RenderTarget(int width, int height)
 }
 
 
-void RenderTarget::drawPixel(utils::Vec2i rasterPos, color::RGB8 color) {
+void RenderTarget::setPixel(utils::Vec2i rasterPos, color::RGB8 color) {
     if(rasterPos.x < 0 || rasterPos.x >= m_SIZE.x || rasterPos.y < 0 || rasterPos.y >= m_SIZE.y) {
         return;
     }
     m_pixels[static_cast<size_t>(rasterPos.y * m_SIZE.x + rasterPos.x)] = color;
+}
+
+
+const std::vector<color::RGB8>& RenderTarget::getPixels() const {
+	return m_pixels;
 }
 
 

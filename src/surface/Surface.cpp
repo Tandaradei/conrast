@@ -2,11 +2,16 @@
 
 namespace conrast { namespace surface {
 
-Surface::Surface(int width, int height)
-    : RenderTarget (width, height)
+Surface::Surface(utils::Vec2i resolution)
+	:m_resolution(resolution)
 {}
 
-Surface::~Surface()
-{}
+void Surface::setResolution(utils::Vec2i resolution) {
+	m_resolution = resolution;
+}
+
+utils::Vec2i Surface::getResolution() const {
+	return m_resolution;
+}
 
 }}

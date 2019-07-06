@@ -5,20 +5,40 @@
 
 namespace conrast { namespace surface {
 
-ImageSurface::ImageSurface(uint16_t width, uint16_t height)
-    : Surface(width, height)
+ImageSurface::ImageSurface(utils::Vec2i resolution, ImageSurface::ImageFormat imageFormat)
+	: Surface(resolution),
+	m_imageFormat(imageFormat)
 {}
 
 
-void ImageSurface::display() const {
+void ImageSurface::display(const render::RenderTarget& renderTarget) const {
     std::vector<uint8_t> data;
-    data.resize(static_cast<size_t>(m_SIZE.x * m_SIZE.y * 3));
-    for (size_t i = 0; i < m_pixels.size(); i++) {
-        data[i * 3 + 0] = m_pixels[i].r;
-        data[i * 3 + 1] = m_pixels[i].g;
-        data[i * 3 + 2] = m_pixels[i].b;
-    }
-    stbi_write_bmp("render.bmp", m_SIZE.x, m_SIZE.y, 3, data.data());
+	const auto size = renderTarget.getSize();
+	const utils::Vec2f resolutionScaling = utils::Vec2f{
+		static_cast<float>(size.x) / static_cast<float>(m_resolution.x),
+		static_cast<float>(size.y) / static_cast<float>(m_resolution.y)
+	};
+
+    data.resize(static_cast<size_t>(m_resolution.x * m_resolution.y * 3));
+	const auto& pixels = renderTarget.getPixels();
+	for (unsigned int y = 0; y < m_resolution.y; y++) {
+		for (unsigned int x = 0; x < m_resolution.x; x++) {
+			size_t dataIndex = y * m_resolution.x + x;
+			size_t pixelIndex = static_cast<size_t>(y * resolutionScaling.y) * size.x + static_cast<size_t>(x * resolutionScaling.x);
+			data[dataIndex * 3 + 0] = pixels[pixelIndex].r;
+			data[dataIndex * 3 + 1] = pixels[pixelIndex].g;
+			data[dataIndex * 3 + 2] = pixels[pixelIndex].b;
+		}
+	}
+	switch (m_imageFormat) {
+	case ImageFormat::BMP:
+		stbi_write_bmp("render.bmp", m_resolution.x, m_resolution.y, 3, data.data());
+		break;
+	case ImageFormat::PNG:
+		stbi_write_png("render.png", m_resolution.x, m_resolution.y, 3, data.data(), m_resolution.x * 3);
+		break;
+
+	}
 }
 
 }}

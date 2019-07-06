@@ -9,8 +9,16 @@ namespace conrast { namespace surface {
 class ImageSurface : public Surface
 {
 public:
-    ImageSurface(uint16_t width, uint16_t height);
-    virtual void display() const override;
+	enum class ImageFormat {
+		BMP,
+		PNG
+	};
+
+	ImageSurface(utils::Vec2i resolution, ImageFormat imageFormat = ImageFormat::BMP);
+    virtual void display(const render::RenderTarget& renderTarget) const override;
+
+private:
+	ImageFormat m_imageFormat;
 };
 
 } }
