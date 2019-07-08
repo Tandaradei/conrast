@@ -15,6 +15,8 @@ add_executable(${PROJECT_NAME}
     src/color/Color.cpp
     src/utils/Vec.hpp
     src/utils/Vec.cpp
+	src/utils/Matrix.hpp
+    src/utils/Matrix.cpp
     src/utils/Geometry.hpp
     src/utils/Geometry.cpp
     src/surface/Surface.hpp
@@ -23,6 +25,8 @@ add_executable(${PROJECT_NAME}
     src/surface/ConsoleSurface.cpp
     src/surface/ImageSurface.hpp
     src/surface/ImageSurface.cpp
+    src/rasterizer/PerspectiveCamera.hpp
+    src/rasterizer/PerspectiveCamera.cpp
     src/rasterizer/Rasterizer.hpp
     src/rasterizer/Rasterizer.cpp
     src/render/RenderTarget.hpp

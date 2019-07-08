@@ -171,6 +171,33 @@ struct Vec3 {
 
 using Vec3f = Vec3<float>;
 
+template <typename T>
+struct Vec4 {
+	T x;
+	T y;
+	T z;
+	T w;
+
+	Vec4(T x, T y, T z, T w)
+		: x(x), y(y), z(z), w(w)
+	{}
+
+	Vec4(Vec3<T> vec3, T w)
+		: x(vec3.x),
+		y(vec3.y),
+		z(vec3.z),
+		w(w)
+	{}
+
+	Vec3<T> toVec3() {
+		if (w != 0.0f) {
+			return { x / w, y / w, z / w };
+		}
+		return { x, y, z };
+	}
+};
+
+using Vec4f = Vec4<float>;
 
 } }
 

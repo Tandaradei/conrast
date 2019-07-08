@@ -5,6 +5,7 @@
 #include "mesh/Line.hpp"
 #include "mesh/Triangle.hpp"
 #include "mesh/Mesh.hpp"
+#include "rasterizer/PerspectiveCamera.hpp"
 
 namespace conrast { namespace rast {
 
@@ -21,16 +22,13 @@ public:
         FillType fillType = FillType::Fill;
     };
 
-    struct Camera {
-        float imagePlaneHorizontalSize = 1.6f;
-        float imagePlaneVerticalSize = 0.9f;
-    };
-
 public:
-    Rasterizer(utils::Vec2i rasterSize, Options m_options);
+    Rasterizer(utils::Vec2i rasterSize, Options m_options, PerspectiveCamera& camera);
 
 	void setRasterSize(utils::Vec2i rasterSize);
     void setOptions(Options m_options);
+
+	void setCamera(PerspectiveCamera& camera);
 
     void rasterize(render::Framebuffer& framebuffer, const mesh::Mesh& mesh) const;
 
@@ -45,9 +43,9 @@ private:
     void drawTriangleLines(render::Framebuffer& framebuffer, const mesh::Triangle& triangle) const;
 
 private:
-    utils::Vec2i m_rasterSize;
-    Options m_options;
-    Camera m_camera;
+    utils::Vec2i		m_rasterSize;
+    Options				m_options;
+    PerspectiveCamera&	m_camera;
 };
 
 

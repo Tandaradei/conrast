@@ -7,9 +7,10 @@
 namespace conrast { namespace  rast {
 
 
-Rasterizer::Rasterizer(utils::Vec2i rasterSize, Rasterizer::Options options)
+Rasterizer::Rasterizer(utils::Vec2i rasterSize, Rasterizer::Options options, PerspectiveCamera& camera)
 	: m_rasterSize(rasterSize),
-	m_options(options)
+	m_options(options),
+	m_camera(camera)
 {}
 
 
@@ -20,6 +21,10 @@ void Rasterizer::setRasterSize(utils::Vec2i rasterSize) {
 
 void Rasterizer::setOptions(Rasterizer::Options options) {
 	m_options = options;
+}
+
+void Rasterizer::setCamera(PerspectiveCamera& camera) {
+	m_camera = camera;
 }
 
 
@@ -45,20 +50,23 @@ utils::Vec2f Rasterizer::transformRasterToScreen(utils::Vec2i rasterPos) const {
 
 
 utils::Vec3f Rasterizer::transformWorldToScreen(utils::Vec3f position) const {
-	return {
+	return m_camera.projectToScreen(position);
+	/*{
 		position.x / position.z / m_camera.imagePlaneHorizontalSize,
 		-position.y / position.z / m_camera.imagePlaneVerticalSize,
 		position.z
 	};
+	*/
 }
 
 
 utils::Vec3f Rasterizer::transformScreenToWorld(utils::Vec3f screenPos) const {
-	return {
+	return m_camera.projectToWorld(screenPos);
+	/*{
 		screenPos.x * screenPos.z * m_camera.imagePlaneHorizontalSize,
 		-screenPos.y * screenPos.z * m_camera.imagePlaneVerticalSize,
 		screenPos.z
-	};
+	};*/
 }
 
 

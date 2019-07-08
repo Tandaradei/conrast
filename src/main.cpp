@@ -3,6 +3,7 @@
 
 #include "surface/ConsoleSurface.hpp"
 #include "surface/ImageSurface.hpp"
+#include "rasterizer/PerspectiveCamera.hpp"
 #include "rasterizer/Rasterizer.hpp"
 #include "render/Renderer.hpp"
 #include "render/RenderTarget.hpp"
@@ -10,6 +11,7 @@
 
 static const conrast::utils::Vec3f LIGHT_POS = { -0.5f, 1.0f, 1.75f };
 static const float LIGHT_RADIUS = 100.0f;
+static const float RES = 2.0f;
 
 
 conrast::color::RGB8 defaultFrag(const conrast::render::FragmentShaderParameters& params) {
@@ -22,7 +24,8 @@ conrast::color::RGB8 defaultFrag(const conrast::render::FragmentShaderParameters
         if(dot > 0.0f) {
             auto color = params.vertexColor;
             color *= dot;
-            color *= 1.0f - powf((distanceToLight / LIGHT_RADIUS), 3.0f);
+			float lightFactor = (distanceToLight / LIGHT_RADIUS);
+			color *= 1.0f - lightFactor * lightFactor * lightFactor;
             color_out = color;
         }
     }
@@ -46,9 +49,9 @@ conrast::color::RGB8 simpleLighting(const conrast::render::FragmentShaderParamet
 conrast::mesh::Vertex mkCubeVert(const char txt[3], conrast::utils::Vec3f size, conrast::color::RGB8 color) {
     return  {
         {
-            size.x * (txt[0] == 'L' ? -1.0f : 1.0f),
-            size.y * (txt[1] == 'B' ? -1.0f : 1.0f),
-            size.z * (txt[2] == 'F' ? -1.0f : 1.0f),
+            0.5f * size.x * (txt[0] == 'L' ? -1.0f : 1.0f),
+			0.5f * size.y * (txt[1] == 'B' ? -1.0f : 1.0f),
+			0.5f * size.z * (txt[2] == 'F' ? -1.0f : 1.0f),
         },
         conrast::utils::Vec3f{
             (txt[0] == 'L' ? -1.0f : 1.0f),
@@ -81,11 +84,28 @@ conrast::mesh::Mesh mkCube(conrast::utils::Vec3f size, conrast::color::RGB8 colo
 int main() {
     using namespace conrast;
 	render::RenderTarget resultImage(1280, 720);
+
+	surface::ConsoleSurface consoleSurface({ 120, 40 });
+	surface::ImageSurface imageSurface({ 1280, 720 }, surface::ImageSurface::ImageFormat::BMP);
 	
+	utils::Vec3f camPos{ 0.0f, 0.0f, 0.0f };
+	float fov = 90.0f;
+	rast::PerspectiveCamera cam;
+	cam.setValues(
+		camPos,
+		{ 0.0f, 0.0f, 1.0f },
+		0.1f,
+		100.0f,
+		fov,
+		9.0f / 16.0f
+	);
+
     rast::Rasterizer rasterizer(
 		resultImage.getSize(),
-        { rast::Rasterizer::Options::FillType::Fill }
+        { rast::Rasterizer::Options::FillType::Fill },
+		cam
     );
+
     render::Renderer renderer;
 	render::Framebuffer framebuffer(resultImage.getSize(), 0.5f, 1000.0f);
 
@@ -100,9 +120,9 @@ int main() {
         defaultFrag
     };
 
-    mesh::Mesh bigCube = mkCube({ 1.0f, 1.0f, 1.0f }, color::Red);
+    mesh::Mesh bigCube = mkCube({ 2.0f, 2.0f, 2.0f }, color::Red);
     //bigCube.fragShader = simpleLighting;
-    mesh::Mesh smallCube = mkCube({ 0.5f, 0.5f, 0.5f }, color::Blue);
+    mesh::Mesh smallCube = mkCube({ 1.0f, 1.0f, 1.0f }, color::Blue);
 
     auto translateMesh = [](mesh::Mesh& mesh, utils::Vec3f translation) {
         for(auto& vertex : mesh.vertices) {
@@ -115,29 +135,26 @@ int main() {
 
     std::string input = "";
 	bool shouldQuit = false;
-    utils::Vec2f translation{ 0.0f, 0.0f };
     do {
 		auto renderStart = std::chrono::system_clock::now();
 
 		framebuffer.clear();
-        rasterizer.rasterize(framebuffer, floor);
         rasterizer.rasterize(framebuffer, bigCube);
         rasterizer.rasterize(framebuffer, smallCube);
+		rasterizer.rasterize(framebuffer, floor);
 
-		resultImage.clear(color::Black);
+		//resultImage.clear(color::Black);
         renderer.render(resultImage, framebuffer);
 
 		auto renderEnd = std::chrono::system_clock::now();
 		auto renderTime = renderEnd - renderStart;
 
 		auto displayConsoleStart = std::chrono::system_clock::now();
-		surface::ConsoleSurface consoleSurface({ 120, 40 });
 		consoleSurface.display(resultImage);
 		auto displayConsoleEnd = std::chrono::system_clock::now();
 		auto displayConsoleTime = displayConsoleEnd - displayConsoleStart;
 
 		auto displayImageStart = std::chrono::system_clock::now();
-		surface::ImageSurface imageSurface({ 1280, 720 }, surface::ImageSurface::ImageFormat::PNG);
 		imageSurface.display(resultImage);
 		auto displayImageEnd = std::chrono::system_clock::now();
 		auto displayImageTime = displayImageEnd - displayImageStart;
@@ -147,20 +164,25 @@ int main() {
 		std::cout << "Displaying on image(" << imageSurface.getResolution().x << ", " << imageSurface.getResolution().y << ") took " << std::chrono::duration_cast<std::chrono::milliseconds>(displayImageTime).count() << "ms\n";
 
 		std::cin >> input;
-        translateMesh(smallCube, { -translation.x, -translation.y, 0.0f });
 		for (auto character : input) {
 			switch (character) {
 			case 'a':
-				translation.x -= 0.25f;
+				camPos.x -= 0.25f;
 				break;
 			case 'd':
-				translation.x += 0.25f;
+				camPos.x += 0.25f;
 				break;
 			case 'w':
-				translation.y += 0.25f;
+				camPos.z += 0.25f;
 				break;
 			case 's':
-				translation.y -= 0.25f;
+				camPos.z -= 0.25f;
+				break;
+			case '+':
+				fov -= 5.0f;
+				break;
+			case '-':
+				fov += 5.0f;
 				break;
 			case 'q':
 				shouldQuit = true;
@@ -169,8 +191,14 @@ int main() {
 				break;
 			}
 		}
-
-        translateMesh(smallCube, { translation.x, translation.y, 0.0f });
+		cam.setValues(
+			camPos,
+			{ 0.0f, 0.0f, 1.0f },
+			0.1f,
+			100.0f,
+			fov,
+			9.0f / 16.0f
+		);
     } while(!shouldQuit);
 
     return 0;
